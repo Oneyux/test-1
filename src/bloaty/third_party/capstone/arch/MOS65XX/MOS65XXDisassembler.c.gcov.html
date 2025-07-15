@@ -1,0 +1,672 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - /src/bloaty/third_party/capstone/arch/MOS65XX/MOS65XXDisassembler.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">src/bloaty/third_party/capstone/arch/MOS65XX</a> - MOS65XXDisassembler.c<span style="font-size: 80%;"> (source / <a href="MOS65XXDisassembler.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">140</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2025-07-14 15:12:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* Capstone Disassembly Engine */</a>
+<a name="2"><span class="lineNum">       2 </span>            : /* MOS65XX Backend by Sebastian Macke &lt;sebastian@macke.de&gt; 2018 */</a>
+<a name="3"><span class="lineNum">       3 </span>            : </a>
+<a name="4"><span class="lineNum">       4 </span>            : #include &quot;capstone/mos65xx.h&quot;</a>
+<a name="5"><span class="lineNum">       5 </span>            : #include &quot;MOS65XXDisassembler.h&quot;</a>
+<a name="6"><span class="lineNum">       6 </span>            : </a>
+<a name="7"><span class="lineNum">       7 </span>            : typedef struct OpInfo {</a>
+<a name="8"><span class="lineNum">       8 </span>            :         mos65xx_insn ins;</a>
+<a name="9"><span class="lineNum">       9 </span>            :         mos65xx_address_mode am;</a>
+<a name="10"><span class="lineNum">      10 </span>            : } OpInfo;</a>
+<a name="11"><span class="lineNum">      11 </span>            : </a>
+<a name="12"><span class="lineNum">      12 </span>            : static const struct OpInfo OpInfoTable[]= {</a>
+<a name="13"><span class="lineNum">      13 </span>            :         { MOS65XX_INS_BRK    , MOS65XX_AM_IMP  }, // 0x00</a>
+<a name="14"><span class="lineNum">      14 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_INDX }, // 0x01</a>
+<a name="15"><span class="lineNum">      15 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x02</a>
+<a name="16"><span class="lineNum">      16 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x03</a>
+<a name="17"><span class="lineNum">      17 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZP   }, // 0x04</a>
+<a name="18"><span class="lineNum">      18 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_ZP   }, // 0x05</a>
+<a name="19"><span class="lineNum">      19 </span>            :         { MOS65XX_INS_ASL    , MOS65XX_AM_ZP   }, // 0x06</a>
+<a name="20"><span class="lineNum">      20 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x07</a>
+<a name="21"><span class="lineNum">      21 </span>            :         { MOS65XX_INS_PHP    , MOS65XX_AM_IMP  }, // 0x08</a>
+<a name="22"><span class="lineNum">      22 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_IMM  }, // 0x09</a>
+<a name="23"><span class="lineNum">      23 </span>            :         { MOS65XX_INS_ASL    , MOS65XX_AM_ACC  }, // 0x0a</a>
+<a name="24"><span class="lineNum">      24 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x0b</a>
+<a name="25"><span class="lineNum">      25 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ABS  }, // 0x0c</a>
+<a name="26"><span class="lineNum">      26 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_ABS  }, // 0x0d</a>
+<a name="27"><span class="lineNum">      27 </span>            :         { MOS65XX_INS_ASL    , MOS65XX_AM_ABS  }, // 0x0e</a>
+<a name="28"><span class="lineNum">      28 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x0f</a>
+<a name="29"><span class="lineNum">      29 </span>            :         { MOS65XX_INS_BPL    , MOS65XX_AM_REL  }, // 0x10</a>
+<a name="30"><span class="lineNum">      30 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_INDY }, // 0x11</a>
+<a name="31"><span class="lineNum">      31 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x12</a>
+<a name="32"><span class="lineNum">      32 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x13</a>
+<a name="33"><span class="lineNum">      33 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZPX  }, // 0x14</a>
+<a name="34"><span class="lineNum">      34 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_ZPX  }, // 0x15</a>
+<a name="35"><span class="lineNum">      35 </span>            :         { MOS65XX_INS_ASL    , MOS65XX_AM_ZPX  }, // 0x16</a>
+<a name="36"><span class="lineNum">      36 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x17</a>
+<a name="37"><span class="lineNum">      37 </span>            :         { MOS65XX_INS_CLC    , MOS65XX_AM_IMP  }, // 0x18</a>
+<a name="38"><span class="lineNum">      38 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_ABSY }, // 0x19</a>
+<a name="39"><span class="lineNum">      39 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0x1a</a>
+<a name="40"><span class="lineNum">      40 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x1b</a>
+<a name="41"><span class="lineNum">      41 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ABS  }, // 0x1c</a>
+<a name="42"><span class="lineNum">      42 </span>            :         { MOS65XX_INS_ORA    , MOS65XX_AM_ABSX }, // 0x1d</a>
+<a name="43"><span class="lineNum">      43 </span>            :         { MOS65XX_INS_ASL    , MOS65XX_AM_ABSX }, // 0x1e</a>
+<a name="44"><span class="lineNum">      44 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x1f</a>
+<a name="45"><span class="lineNum">      45 </span>            :         { MOS65XX_INS_JSR    , MOS65XX_AM_ABS  }, // 0x20</a>
+<a name="46"><span class="lineNum">      46 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_INDX }, // 0x21</a>
+<a name="47"><span class="lineNum">      47 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x22</a>
+<a name="48"><span class="lineNum">      48 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x23</a>
+<a name="49"><span class="lineNum">      49 </span>            :         { MOS65XX_INS_BIT    , MOS65XX_AM_ZP   }, // 0x24</a>
+<a name="50"><span class="lineNum">      50 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_ZP   }, // 0x25</a>
+<a name="51"><span class="lineNum">      51 </span>            :         { MOS65XX_INS_ROL    , MOS65XX_AM_ZP   }, // 0x26</a>
+<a name="52"><span class="lineNum">      52 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x27</a>
+<a name="53"><span class="lineNum">      53 </span>            :         { MOS65XX_INS_PLP    , MOS65XX_AM_IMP  }, // 0x28</a>
+<a name="54"><span class="lineNum">      54 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_IMM  }, // 0x29</a>
+<a name="55"><span class="lineNum">      55 </span>            :         { MOS65XX_INS_ROL    , MOS65XX_AM_ACC  }, // 0x2a</a>
+<a name="56"><span class="lineNum">      56 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x2b</a>
+<a name="57"><span class="lineNum">      57 </span>            :         { MOS65XX_INS_BIT    , MOS65XX_AM_ABS  }, // 0x2c</a>
+<a name="58"><span class="lineNum">      58 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_ABS  }, // 0x2d</a>
+<a name="59"><span class="lineNum">      59 </span>            :         { MOS65XX_INS_ROL    , MOS65XX_AM_ABS  }, // 0x2e</a>
+<a name="60"><span class="lineNum">      60 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x2f</a>
+<a name="61"><span class="lineNum">      61 </span>            :         { MOS65XX_INS_BMI    , MOS65XX_AM_REL  }, // 0x30</a>
+<a name="62"><span class="lineNum">      62 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_INDY }, // 0x31</a>
+<a name="63"><span class="lineNum">      63 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x32</a>
+<a name="64"><span class="lineNum">      64 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x33</a>
+<a name="65"><span class="lineNum">      65 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZPX  }, // 0x34</a>
+<a name="66"><span class="lineNum">      66 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_ZPX  }, // 0x35</a>
+<a name="67"><span class="lineNum">      67 </span>            :         { MOS65XX_INS_ROL    , MOS65XX_AM_ZPX  }, // 0x36</a>
+<a name="68"><span class="lineNum">      68 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x37</a>
+<a name="69"><span class="lineNum">      69 </span>            :         { MOS65XX_INS_SEC    , MOS65XX_AM_IMP  }, // 0x38</a>
+<a name="70"><span class="lineNum">      70 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_ABSY }, // 0x39</a>
+<a name="71"><span class="lineNum">      71 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0x3a</a>
+<a name="72"><span class="lineNum">      72 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x3b</a>
+<a name="73"><span class="lineNum">      73 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ABSX }, // 0x3c</a>
+<a name="74"><span class="lineNum">      74 </span>            :         { MOS65XX_INS_AND    , MOS65XX_AM_ABSX }, // 0x3d</a>
+<a name="75"><span class="lineNum">      75 </span>            :         { MOS65XX_INS_ROL    , MOS65XX_AM_ABSX }, // 0x3e</a>
+<a name="76"><span class="lineNum">      76 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x3f</a>
+<a name="77"><span class="lineNum">      77 </span>            :         { MOS65XX_INS_RTI    , MOS65XX_AM_IMP  }, // 0x40</a>
+<a name="78"><span class="lineNum">      78 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_INDX }, // 0x41</a>
+<a name="79"><span class="lineNum">      79 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x42</a>
+<a name="80"><span class="lineNum">      80 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x43</a>
+<a name="81"><span class="lineNum">      81 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZP   }, // 0x44</a>
+<a name="82"><span class="lineNum">      82 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_ZP   }, // 0x45</a>
+<a name="83"><span class="lineNum">      83 </span>            :         { MOS65XX_INS_LSR    , MOS65XX_AM_ZP   }, // 0x46</a>
+<a name="84"><span class="lineNum">      84 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x47</a>
+<a name="85"><span class="lineNum">      85 </span>            :         { MOS65XX_INS_PHA    , MOS65XX_AM_IMP  }, // 0x48</a>
+<a name="86"><span class="lineNum">      86 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_IMM  }, // 0x49</a>
+<a name="87"><span class="lineNum">      87 </span>            :         { MOS65XX_INS_LSR    , MOS65XX_AM_ACC  }, // 0x4a</a>
+<a name="88"><span class="lineNum">      88 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x4b</a>
+<a name="89"><span class="lineNum">      89 </span>            :         { MOS65XX_INS_JMP    , MOS65XX_AM_ABS  }, // 0x4c</a>
+<a name="90"><span class="lineNum">      90 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_ABS  }, // 0x4d</a>
+<a name="91"><span class="lineNum">      91 </span>            :         { MOS65XX_INS_LSR    , MOS65XX_AM_ABS  }, // 0x4e</a>
+<a name="92"><span class="lineNum">      92 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x4f</a>
+<a name="93"><span class="lineNum">      93 </span>            :         { MOS65XX_INS_BVC    , MOS65XX_AM_REL  }, // 0x50</a>
+<a name="94"><span class="lineNum">      94 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_INDY }, // 0x51</a>
+<a name="95"><span class="lineNum">      95 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x52</a>
+<a name="96"><span class="lineNum">      96 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x53</a>
+<a name="97"><span class="lineNum">      97 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZPX  }, // 0x54</a>
+<a name="98"><span class="lineNum">      98 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_ZPX  }, // 0x55</a>
+<a name="99"><span class="lineNum">      99 </span>            :         { MOS65XX_INS_LSR    , MOS65XX_AM_ZPX  }, // 0x56</a>
+<a name="100"><span class="lineNum">     100 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x57</a>
+<a name="101"><span class="lineNum">     101 </span>            :         { MOS65XX_INS_CLI    , MOS65XX_AM_IMP  }, // 0x58</a>
+<a name="102"><span class="lineNum">     102 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_ABSY }, // 0x59</a>
+<a name="103"><span class="lineNum">     103 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0x5a</a>
+<a name="104"><span class="lineNum">     104 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x5b</a>
+<a name="105"><span class="lineNum">     105 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ABSX }, // 0x5c</a>
+<a name="106"><span class="lineNum">     106 </span>            :         { MOS65XX_INS_EOR    , MOS65XX_AM_ABSX }, // 0x5d</a>
+<a name="107"><span class="lineNum">     107 </span>            :         { MOS65XX_INS_LSR    , MOS65XX_AM_ABSX }, // 0x5e</a>
+<a name="108"><span class="lineNum">     108 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x5f</a>
+<a name="109"><span class="lineNum">     109 </span>            :         { MOS65XX_INS_RTS    , MOS65XX_AM_IMP  }, // 0x60</a>
+<a name="110"><span class="lineNum">     110 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_INDX }, // 0x61</a>
+<a name="111"><span class="lineNum">     111 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x62</a>
+<a name="112"><span class="lineNum">     112 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x63</a>
+<a name="113"><span class="lineNum">     113 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZP   }, // 0x64</a>
+<a name="114"><span class="lineNum">     114 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_ZP   }, // 0x65</a>
+<a name="115"><span class="lineNum">     115 </span>            :         { MOS65XX_INS_ROR    , MOS65XX_AM_ZP   }, // 0x66</a>
+<a name="116"><span class="lineNum">     116 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x67</a>
+<a name="117"><span class="lineNum">     117 </span>            :         { MOS65XX_INS_PLA    , MOS65XX_AM_IMP  }, // 0x68</a>
+<a name="118"><span class="lineNum">     118 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_IMM  }, // 0x69</a>
+<a name="119"><span class="lineNum">     119 </span>            :         { MOS65XX_INS_ROR    , MOS65XX_AM_ACC  }, // 0x6a</a>
+<a name="120"><span class="lineNum">     120 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x6b</a>
+<a name="121"><span class="lineNum">     121 </span>            :         { MOS65XX_INS_JMP    , MOS65XX_AM_IND  }, // 0x6c</a>
+<a name="122"><span class="lineNum">     122 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_ABS  }, // 0x6d</a>
+<a name="123"><span class="lineNum">     123 </span>            :         { MOS65XX_INS_ROR    , MOS65XX_AM_ABS  }, // 0x6e</a>
+<a name="124"><span class="lineNum">     124 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x6f</a>
+<a name="125"><span class="lineNum">     125 </span>            :         { MOS65XX_INS_BVS    , MOS65XX_AM_REL  }, // 0x70</a>
+<a name="126"><span class="lineNum">     126 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_INDY }, // 0x71</a>
+<a name="127"><span class="lineNum">     127 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x72</a>
+<a name="128"><span class="lineNum">     128 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x73</a>
+<a name="129"><span class="lineNum">     129 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZPX  }, // 0x74</a>
+<a name="130"><span class="lineNum">     130 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_ZPX  }, // 0x75</a>
+<a name="131"><span class="lineNum">     131 </span>            :         { MOS65XX_INS_ROR    , MOS65XX_AM_ZPX  }, // 0x76</a>
+<a name="132"><span class="lineNum">     132 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x77</a>
+<a name="133"><span class="lineNum">     133 </span>            :         { MOS65XX_INS_SEI    , MOS65XX_AM_IMP  }, // 0x78</a>
+<a name="134"><span class="lineNum">     134 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_ABSY }, // 0x79</a>
+<a name="135"><span class="lineNum">     135 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0x7a</a>
+<a name="136"><span class="lineNum">     136 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x7b</a>
+<a name="137"><span class="lineNum">     137 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ABSX }, // 0x7c</a>
+<a name="138"><span class="lineNum">     138 </span>            :         { MOS65XX_INS_ADC    , MOS65XX_AM_ABSX }, // 0x7d</a>
+<a name="139"><span class="lineNum">     139 </span>            :         { MOS65XX_INS_ROR    , MOS65XX_AM_ABSX }, // 0x7e</a>
+<a name="140"><span class="lineNum">     140 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x7f</a>
+<a name="141"><span class="lineNum">     141 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0x80</a>
+<a name="142"><span class="lineNum">     142 </span>            :         { MOS65XX_INS_STA    , MOS65XX_AM_INDX }, // 0x81</a>
+<a name="143"><span class="lineNum">     143 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0x82</a>
+<a name="144"><span class="lineNum">     144 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x83</a>
+<a name="145"><span class="lineNum">     145 </span>            :         { MOS65XX_INS_STY    , MOS65XX_AM_ZP   }, // 0x84</a>
+<a name="146"><span class="lineNum">     146 </span>            :         { MOS65XX_INS_STA    , MOS65XX_AM_ZP   }, // 0x85</a>
+<a name="147"><span class="lineNum">     147 </span>            :         { MOS65XX_INS_STX    , MOS65XX_AM_ZP   }, // 0x86</a>
+<a name="148"><span class="lineNum">     148 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x87</a>
+<a name="149"><span class="lineNum">     149 </span>            :         { MOS65XX_INS_DEY    , MOS65XX_AM_IMP  }, // 0x88</a>
+<a name="150"><span class="lineNum">     150 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0x89</a>
+<a name="151"><span class="lineNum">     151 </span>            :         { MOS65XX_INS_TXA    , MOS65XX_AM_IMP  }, // 0x8a</a>
+<a name="152"><span class="lineNum">     152 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x8b</a>
+<a name="153"><span class="lineNum">     153 </span>            :         { MOS65XX_INS_STY    , MOS65XX_AM_ABS  }, // 0x8c</a>
+<a name="154"><span class="lineNum">     154 </span>            :         { MOS65XX_INS_STA    , MOS65XX_AM_ABS  }, // 0x8d</a>
+<a name="155"><span class="lineNum">     155 </span>            :         { MOS65XX_INS_STX    , MOS65XX_AM_ABS  }, // 0x8e</a>
+<a name="156"><span class="lineNum">     156 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x8f</a>
+<a name="157"><span class="lineNum">     157 </span>            :         { MOS65XX_INS_BCC    , MOS65XX_AM_REL  }, // 0x90</a>
+<a name="158"><span class="lineNum">     158 </span>            :         { MOS65XX_INS_STA    , MOS65XX_AM_INDY }, // 0x91</a>
+<a name="159"><span class="lineNum">     159 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x92</a>
+<a name="160"><span class="lineNum">     160 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x93</a>
+<a name="161"><span class="lineNum">     161 </span>            :         { MOS65XX_INS_STY    , MOS65XX_AM_ZPX  }, // 0x94</a>
+<a name="162"><span class="lineNum">     162 </span>            :         { MOS65XX_INS_STA    , MOS65XX_AM_ZPX  }, // 0x95</a>
+<a name="163"><span class="lineNum">     163 </span>            :         { MOS65XX_INS_STX    , MOS65XX_AM_ZPY  }, // 0x96</a>
+<a name="164"><span class="lineNum">     164 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x97</a>
+<a name="165"><span class="lineNum">     165 </span>            :         { MOS65XX_INS_TYA    , MOS65XX_AM_IMP  }, // 0x98</a>
+<a name="166"><span class="lineNum">     166 </span>            :         { MOS65XX_INS_STA    , MOS65XX_AM_ABSY }, // 0x99</a>
+<a name="167"><span class="lineNum">     167 </span>            :         { MOS65XX_INS_TXS    , MOS65XX_AM_IMP  }, // 0x9a</a>
+<a name="168"><span class="lineNum">     168 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x9b</a>
+<a name="169"><span class="lineNum">     169 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x9c</a>
+<a name="170"><span class="lineNum">     170 </span>            :         { MOS65XX_INS_STA    , MOS65XX_AM_ABSX }, // 0x9d</a>
+<a name="171"><span class="lineNum">     171 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x9e</a>
+<a name="172"><span class="lineNum">     172 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0x9f</a>
+<a name="173"><span class="lineNum">     173 </span>            :         { MOS65XX_INS_LDY    , MOS65XX_AM_IMM  }, // 0xa0</a>
+<a name="174"><span class="lineNum">     174 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_INDX }, // 0xa1</a>
+<a name="175"><span class="lineNum">     175 </span>            :         { MOS65XX_INS_LDX    , MOS65XX_AM_IMM  }, // 0xa2</a>
+<a name="176"><span class="lineNum">     176 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xa3</a>
+<a name="177"><span class="lineNum">     177 </span>            :         { MOS65XX_INS_LDY    , MOS65XX_AM_ZP   }, // 0xa4</a>
+<a name="178"><span class="lineNum">     178 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_ZP   }, // 0xa5</a>
+<a name="179"><span class="lineNum">     179 </span>            :         { MOS65XX_INS_LDX    , MOS65XX_AM_ZP   }, // 0xa6</a>
+<a name="180"><span class="lineNum">     180 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xa7</a>
+<a name="181"><span class="lineNum">     181 </span>            :         { MOS65XX_INS_TAY    , MOS65XX_AM_IMP  }, // 0xa8</a>
+<a name="182"><span class="lineNum">     182 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_IMM  }, // 0xa9</a>
+<a name="183"><span class="lineNum">     183 </span>            :         { MOS65XX_INS_TAX    , MOS65XX_AM_IMP  }, // 0xaa</a>
+<a name="184"><span class="lineNum">     184 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xab</a>
+<a name="185"><span class="lineNum">     185 </span>            :         { MOS65XX_INS_LDY    , MOS65XX_AM_ABS  }, // 0xac</a>
+<a name="186"><span class="lineNum">     186 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_ABS  }, // 0xad</a>
+<a name="187"><span class="lineNum">     187 </span>            :         { MOS65XX_INS_LDX    , MOS65XX_AM_ABS  }, // 0xae</a>
+<a name="188"><span class="lineNum">     188 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xaf</a>
+<a name="189"><span class="lineNum">     189 </span>            :         { MOS65XX_INS_BCS    , MOS65XX_AM_REL  }, // 0xb0</a>
+<a name="190"><span class="lineNum">     190 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_INDY }, // 0xb1</a>
+<a name="191"><span class="lineNum">     191 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xb2</a>
+<a name="192"><span class="lineNum">     192 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xb3</a>
+<a name="193"><span class="lineNum">     193 </span>            :         { MOS65XX_INS_LDY    , MOS65XX_AM_ZPX  }, // 0xb4</a>
+<a name="194"><span class="lineNum">     194 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_ZPX  }, // 0xb5</a>
+<a name="195"><span class="lineNum">     195 </span>            :         { MOS65XX_INS_LDX    , MOS65XX_AM_ZPY  }, // 0xb6</a>
+<a name="196"><span class="lineNum">     196 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xb7</a>
+<a name="197"><span class="lineNum">     197 </span>            :         { MOS65XX_INS_CLV    , MOS65XX_AM_IMP  }, // 0xb8</a>
+<a name="198"><span class="lineNum">     198 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_ABSY }, // 0xb9</a>
+<a name="199"><span class="lineNum">     199 </span>            :         { MOS65XX_INS_TSX    , MOS65XX_AM_IMP  }, // 0xba</a>
+<a name="200"><span class="lineNum">     200 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xbb</a>
+<a name="201"><span class="lineNum">     201 </span>            :         { MOS65XX_INS_LDY    , MOS65XX_AM_ABSX }, // 0xbc</a>
+<a name="202"><span class="lineNum">     202 </span>            :         { MOS65XX_INS_LDA    , MOS65XX_AM_ABSX }, // 0xbd</a>
+<a name="203"><span class="lineNum">     203 </span>            :         { MOS65XX_INS_LDX    , MOS65XX_AM_ABSY }, // 0xbe</a>
+<a name="204"><span class="lineNum">     204 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xbf</a>
+<a name="205"><span class="lineNum">     205 </span>            :         { MOS65XX_INS_CPY    , MOS65XX_AM_IMM  }, // 0xc0</a>
+<a name="206"><span class="lineNum">     206 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_INDX }, // 0xc1</a>
+<a name="207"><span class="lineNum">     207 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0xc2</a>
+<a name="208"><span class="lineNum">     208 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xc3</a>
+<a name="209"><span class="lineNum">     209 </span>            :         { MOS65XX_INS_CPY    , MOS65XX_AM_ZP   }, // 0xc4</a>
+<a name="210"><span class="lineNum">     210 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_ZP   }, // 0xc5</a>
+<a name="211"><span class="lineNum">     211 </span>            :         { MOS65XX_INS_DEC    , MOS65XX_AM_ZP   }, // 0xc6</a>
+<a name="212"><span class="lineNum">     212 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xc7</a>
+<a name="213"><span class="lineNum">     213 </span>            :         { MOS65XX_INS_INY    , MOS65XX_AM_IMP  }, // 0xc8</a>
+<a name="214"><span class="lineNum">     214 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_IMM  }, // 0xc9</a>
+<a name="215"><span class="lineNum">     215 </span>            :         { MOS65XX_INS_DEX    , MOS65XX_AM_IMP  }, // 0xca</a>
+<a name="216"><span class="lineNum">     216 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xcb</a>
+<a name="217"><span class="lineNum">     217 </span>            :         { MOS65XX_INS_CPY    , MOS65XX_AM_ABS  }, // 0xcc</a>
+<a name="218"><span class="lineNum">     218 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_ABS  }, // 0xcd</a>
+<a name="219"><span class="lineNum">     219 </span>            :         { MOS65XX_INS_DEC    , MOS65XX_AM_ABS  }, // 0xce</a>
+<a name="220"><span class="lineNum">     220 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xcf</a>
+<a name="221"><span class="lineNum">     221 </span>            :         { MOS65XX_INS_BNE    , MOS65XX_AM_REL  }, // 0xd0</a>
+<a name="222"><span class="lineNum">     222 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_INDY }, // 0xd1</a>
+<a name="223"><span class="lineNum">     223 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xd2</a>
+<a name="224"><span class="lineNum">     224 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xd3</a>
+<a name="225"><span class="lineNum">     225 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZPX  }, // 0xd4</a>
+<a name="226"><span class="lineNum">     226 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_ZPX  }, // 0xd5</a>
+<a name="227"><span class="lineNum">     227 </span>            :         { MOS65XX_INS_DEC    , MOS65XX_AM_ZPX  }, // 0xd6</a>
+<a name="228"><span class="lineNum">     228 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xd7</a>
+<a name="229"><span class="lineNum">     229 </span>            :         { MOS65XX_INS_CLD    , MOS65XX_AM_IMP  }, // 0xd8</a>
+<a name="230"><span class="lineNum">     230 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_ABSY }, // 0xd9</a>
+<a name="231"><span class="lineNum">     231 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0xda</a>
+<a name="232"><span class="lineNum">     232 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xdb</a>
+<a name="233"><span class="lineNum">     233 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ABSX }, // 0xdc</a>
+<a name="234"><span class="lineNum">     234 </span>            :         { MOS65XX_INS_CMP    , MOS65XX_AM_ABSX }, // 0xdd</a>
+<a name="235"><span class="lineNum">     235 </span>            :         { MOS65XX_INS_DEC    , MOS65XX_AM_ABSX }, // 0xde</a>
+<a name="236"><span class="lineNum">     236 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xdf</a>
+<a name="237"><span class="lineNum">     237 </span>            :         { MOS65XX_INS_CPX    , MOS65XX_AM_IMM  }, // 0xe0</a>
+<a name="238"><span class="lineNum">     238 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_INDX }, // 0xe1</a>
+<a name="239"><span class="lineNum">     239 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0xe2</a>
+<a name="240"><span class="lineNum">     240 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xe3</a>
+<a name="241"><span class="lineNum">     241 </span>            :         { MOS65XX_INS_CPX    , MOS65XX_AM_ZP   }, // 0xe4</a>
+<a name="242"><span class="lineNum">     242 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_ZP   }, // 0xe5</a>
+<a name="243"><span class="lineNum">     243 </span>            :         { MOS65XX_INS_INC    , MOS65XX_AM_ZP   }, // 0xe6</a>
+<a name="244"><span class="lineNum">     244 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xe7</a>
+<a name="245"><span class="lineNum">     245 </span>            :         { MOS65XX_INS_INX    , MOS65XX_AM_IMP  }, // 0xe8</a>
+<a name="246"><span class="lineNum">     246 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_IMM  }, // 0xe9</a>
+<a name="247"><span class="lineNum">     247 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0xea</a>
+<a name="248"><span class="lineNum">     248 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xeb</a>
+<a name="249"><span class="lineNum">     249 </span>            :         { MOS65XX_INS_CPX    , MOS65XX_AM_ABS  }, // 0xec</a>
+<a name="250"><span class="lineNum">     250 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_ABS  }, // 0xed</a>
+<a name="251"><span class="lineNum">     251 </span>            :         { MOS65XX_INS_INC    , MOS65XX_AM_ABS  }, // 0xee</a>
+<a name="252"><span class="lineNum">     252 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xef</a>
+<a name="253"><span class="lineNum">     253 </span>            :         { MOS65XX_INS_BEQ    , MOS65XX_AM_REL  }, // 0xf0</a>
+<a name="254"><span class="lineNum">     254 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_INDY }, // 0xf1</a>
+<a name="255"><span class="lineNum">     255 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xf2</a>
+<a name="256"><span class="lineNum">     256 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xf3</a>
+<a name="257"><span class="lineNum">     257 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ZPX  }, // 0xf4</a>
+<a name="258"><span class="lineNum">     258 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_ZPX  }, // 0xf5</a>
+<a name="259"><span class="lineNum">     259 </span>            :         { MOS65XX_INS_INC    , MOS65XX_AM_ZPX  }, // 0xf6</a>
+<a name="260"><span class="lineNum">     260 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xf7</a>
+<a name="261"><span class="lineNum">     261 </span>            :         { MOS65XX_INS_SED    , MOS65XX_AM_IMP  }, // 0xf8</a>
+<a name="262"><span class="lineNum">     262 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_ABSY }, // 0xf9</a>
+<a name="263"><span class="lineNum">     263 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_IMP  }, // 0xfa</a>
+<a name="264"><span class="lineNum">     264 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xfb</a>
+<a name="265"><span class="lineNum">     265 </span>            :         { MOS65XX_INS_NOP    , MOS65XX_AM_ABSX }, // 0xfc</a>
+<a name="266"><span class="lineNum">     266 </span>            :         { MOS65XX_INS_SBC    , MOS65XX_AM_ABSX }, // 0xfd</a>
+<a name="267"><span class="lineNum">     267 </span>            :         { MOS65XX_INS_INC    , MOS65XX_AM_ABSX }, // 0xfe</a>
+<a name="268"><span class="lineNum">     268 </span>            :         { MOS65XX_INS_INVALID, MOS65XX_AM_NONE }, // 0xff</a>
+<a name="269"><span class="lineNum">     269 </span>            : };</a>
+<a name="270"><span class="lineNum">     270 </span>            : </a>
+<a name="271"><span class="lineNum">     271 </span>            : static const char* RegNames[] = {</a>
+<a name="272"><span class="lineNum">     272 </span>            :         &quot;invalid&quot;, &quot;A&quot;, &quot;X&quot;, &quot;Y&quot;, &quot;P&quot;, &quot;SP&quot;</a>
+<a name="273"><span class="lineNum">     273 </span>            : };</a>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<a name="275"><span class="lineNum">     275 </span>            : #ifndef CAPSTONE_DIET</a>
+<a name="276"><span class="lineNum">     276 </span>            : static const char* GroupNames[] = {</a>
+<a name="277"><span class="lineNum">     277 </span>            :         NULL,</a>
+<a name="278"><span class="lineNum">     278 </span>            :         &quot;jump&quot;,</a>
+<a name="279"><span class="lineNum">     279 </span>            :         &quot;call&quot;,</a>
+<a name="280"><span class="lineNum">     280 </span>            :         &quot;ret&quot;,</a>
+<a name="281"><span class="lineNum">     281 </span>            :         NULL,</a>
+<a name="282"><span class="lineNum">     282 </span>            :         &quot;iret&quot;,</a>
+<a name="283"><span class="lineNum">     283 </span>            :         &quot;branch_relative&quot;</a>
+<a name="284"><span class="lineNum">     284 </span>            : };</a>
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<a name="286"><span class="lineNum">     286 </span>            : typedef struct InstructionInfo {</a>
+<a name="287"><span class="lineNum">     287 </span>            :         const char* name;</a>
+<a name="288"><span class="lineNum">     288 </span>            :         mos65xx_group_type group_type;</a>
+<a name="289"><span class="lineNum">     289 </span>            :         mos65xx_reg write, read;</a>
+<a name="290"><span class="lineNum">     290 </span>            :         bool modifies_status;</a>
+<a name="291"><span class="lineNum">     291 </span>            : } InstructionInfo;</a>
+<a name="292"><span class="lineNum">     292 </span>            : </a>
+<a name="293"><span class="lineNum">     293 </span>            : static const struct InstructionInfo InstructionInfoTable[]= {</a>
+<a name="294"><span class="lineNum">     294 </span>            :         { &quot;invalid&quot;, MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, false },</a>
+<a name="295"><span class="lineNum">     295 </span>            :         { &quot;adc&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC, MOS65XX_REG_INVALID, true },</a>
+<a name="296"><span class="lineNum">     296 </span>            :         { &quot;and&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC,     MOS65XX_REG_INVALID, true },</a>
+<a name="297"><span class="lineNum">     297 </span>            :         { &quot;asl&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="298"><span class="lineNum">     298 </span>            :         { &quot;bcc&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="299"><span class="lineNum">     299 </span>            :         { &quot;bcs&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="300"><span class="lineNum">     300 </span>            :         { &quot;beq&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="301"><span class="lineNum">     301 </span>            :         { &quot;bit&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="302"><span class="lineNum">     302 </span>            :         { &quot;bmi&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="303"><span class="lineNum">     303 </span>            :         { &quot;bne&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="304"><span class="lineNum">     304 </span>            :         { &quot;bpl&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="305"><span class="lineNum">     305 </span>            :         { &quot;brk&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_SP,      MOS65XX_REG_INVALID, false },</a>
+<a name="306"><span class="lineNum">     306 </span>            :         { &quot;bvc&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="307"><span class="lineNum">     307 </span>            :         { &quot;bvs&quot;,     MOS65XX_GRP_BRANCH_RELATIVE, MOS65XX_REG_INVALID, MOS65XX_REG_P,       false },</a>
+<a name="308"><span class="lineNum">     308 </span>            :         { &quot;clc&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="309"><span class="lineNum">     309 </span>            :         { &quot;cld&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="310"><span class="lineNum">     310 </span>            :         { &quot;cli&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="311"><span class="lineNum">     311 </span>            :         { &quot;clv&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="312"><span class="lineNum">     312 </span>            :         { &quot;cmp&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_ACC,     true },</a>
+<a name="313"><span class="lineNum">     313 </span>            :         { &quot;cpx&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_X,       true },</a>
+<a name="314"><span class="lineNum">     314 </span>            :         { &quot;cpy&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_Y,       true },</a>
+<a name="315"><span class="lineNum">     315 </span>            :         { &quot;dec&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="316"><span class="lineNum">     316 </span>            :         { &quot;dex&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_X,       MOS65XX_REG_X,       true },</a>
+<a name="317"><span class="lineNum">     317 </span>            :         { &quot;dey&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_Y,       MOS65XX_REG_Y,       true },</a>
+<a name="318"><span class="lineNum">     318 </span>            :         { &quot;eor&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="319"><span class="lineNum">     319 </span>            :         { &quot;inc&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="320"><span class="lineNum">     320 </span>            :         { &quot;inx&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_X,       MOS65XX_REG_X,       true },</a>
+<a name="321"><span class="lineNum">     321 </span>            :         { &quot;iny&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_Y,       MOS65XX_REG_Y,       true },</a>
+<a name="322"><span class="lineNum">     322 </span>            :         { &quot;jmp&quot;,     MOS65XX_GRP_JUMP,            MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, false },</a>
+<a name="323"><span class="lineNum">     323 </span>            :         { &quot;jsr&quot;,     MOS65XX_GRP_CALL,            MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, false },</a>
+<a name="324"><span class="lineNum">     324 </span>            :         { &quot;lda&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC,     MOS65XX_REG_INVALID, true },</a>
+<a name="325"><span class="lineNum">     325 </span>            :         { &quot;ldx&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_X,       MOS65XX_REG_INVALID, true },</a>
+<a name="326"><span class="lineNum">     326 </span>            :         { &quot;ldy&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_Y,       MOS65XX_REG_INVALID, true },</a>
+<a name="327"><span class="lineNum">     327 </span>            :         { &quot;lsr&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="328"><span class="lineNum">     328 </span>            :         { &quot;nop&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, false },</a>
+<a name="329"><span class="lineNum">     329 </span>            :         { &quot;ora&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC,     MOS65XX_REG_INVALID, true },</a>
+<a name="330"><span class="lineNum">     330 </span>            :         { &quot;pha&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_SP,      MOS65XX_REG_ACC,     false },</a>
+<a name="331"><span class="lineNum">     331 </span>            :         { &quot;pla&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC,     MOS65XX_REG_SP,      true },</a>
+<a name="332"><span class="lineNum">     332 </span>            :         { &quot;php&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_SP,      MOS65XX_REG_P,       false },</a>
+<a name="333"><span class="lineNum">     333 </span>            :         { &quot;plp&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_SP,      true },</a>
+<a name="334"><span class="lineNum">     334 </span>            :         { &quot;rol&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="335"><span class="lineNum">     335 </span>            :         { &quot;ror&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="336"><span class="lineNum">     336 </span>            :         { &quot;rti&quot;,     MOS65XX_GRP_IRET,            MOS65XX_REG_SP,      MOS65XX_REG_INVALID, true },</a>
+<a name="337"><span class="lineNum">     337 </span>            :         { &quot;rts&quot;,     MOS65XX_GRP_RET,             MOS65XX_REG_SP,      MOS65XX_REG_INVALID, false },</a>
+<a name="338"><span class="lineNum">     338 </span>            :         { &quot;sbc&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC,     MOS65XX_REG_INVALID, true },</a>
+<a name="339"><span class="lineNum">     339 </span>            :         { &quot;sec&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="340"><span class="lineNum">     340 </span>            :         { &quot;sed&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="341"><span class="lineNum">     341 </span>            :         { &quot;sei&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_INVALID, true },</a>
+<a name="342"><span class="lineNum">     342 </span>            :         { &quot;sta&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_ACC,     false },</a>
+<a name="343"><span class="lineNum">     343 </span>            :         { &quot;stx&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_X,       false },</a>
+<a name="344"><span class="lineNum">     344 </span>            :         { &quot;sty&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_INVALID, MOS65XX_REG_Y,       false },</a>
+<a name="345"><span class="lineNum">     345 </span>            :         { &quot;tax&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_X,       MOS65XX_REG_ACC,     true },</a>
+<a name="346"><span class="lineNum">     346 </span>            :         { &quot;tay&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_Y,       MOS65XX_REG_ACC,     true },</a>
+<a name="347"><span class="lineNum">     347 </span>            :         { &quot;tsx&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_X,       MOS65XX_REG_SP,      true },</a>
+<a name="348"><span class="lineNum">     348 </span>            :         { &quot;txa&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC,     MOS65XX_REG_X,       true },</a>
+<a name="349"><span class="lineNum">     349 </span>            :         { &quot;txs&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_SP,      MOS65XX_REG_X,       true },</a>
+<a name="350"><span class="lineNum">     350 </span>            :         { &quot;tya&quot;,     MOS65XX_GRP_INVALID,         MOS65XX_REG_ACC,     MOS65XX_REG_Y,       true },</a>
+<a name="351"><span class="lineNum">     351 </span>            : };</a>
+<a name="352"><span class="lineNum">     352 </span>            : #endif</a>
+<a name="353"><span class="lineNum">     353 </span>            : </a>
+<a name="354"><span class="lineNum">     354 </span><span class="lineNoCov">          0 : static int getInstructionLength(mos65xx_address_mode am)</span></a>
+<a name="355"><span class="lineNum">     355 </span>            : {</a>
+<a name="356"><span class="lineNum">     356 </span><span class="lineNoCov">          0 :         switch(am) {</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_NONE:</span></a>
+<a name="358"><span class="lineNum">     358 </span>            :                 case MOS65XX_AM_ACC:</a>
+<a name="359"><span class="lineNum">     359 </span>            :                 case MOS65XX_AM_IMP:</a>
+<a name="360"><span class="lineNum">     360 </span><span class="lineNoCov">          0 :                         return 1;</span></a>
+<a name="361"><span class="lineNum">     361 </span>            : </a>
+<a name="362"><span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_IMM:</span></a>
+<a name="363"><span class="lineNum">     363 </span>            :                 case MOS65XX_AM_ZPX:</a>
+<a name="364"><span class="lineNum">     364 </span>            :                 case MOS65XX_AM_ZPY:</a>
+<a name="365"><span class="lineNum">     365 </span>            :                 case MOS65XX_AM_ZP:</a>
+<a name="366"><span class="lineNum">     366 </span>            :                 case MOS65XX_AM_REL:</a>
+<a name="367"><span class="lineNum">     367 </span>            :                 case MOS65XX_AM_INDX:</a>
+<a name="368"><span class="lineNum">     368 </span>            :                 case MOS65XX_AM_INDY:</a>
+<a name="369"><span class="lineNum">     369 </span><span class="lineNoCov">          0 :                         return 2;</span></a>
+<a name="370"><span class="lineNum">     370 </span>            : </a>
+<a name="371"><span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ABS:</span></a>
+<a name="372"><span class="lineNum">     372 </span>            :                 case MOS65XX_AM_ABSX:</a>
+<a name="373"><span class="lineNum">     373 </span>            :                 case MOS65XX_AM_ABSY:</a>
+<a name="374"><span class="lineNum">     374 </span>            :                 case MOS65XX_AM_IND:</a>
+<a name="375"><span class="lineNum">     375 </span><span class="lineNoCov">          0 :                         return 3;</span></a>
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 :                 default:</span></a>
+<a name="377"><span class="lineNum">     377 </span><span class="lineNoCov">          0 :                         return 1;</span></a>
+<a name="378"><span class="lineNum">     378 </span>            :         }</a>
+<a name="379"><span class="lineNum">     379 </span>            : }</a>
+<a name="380"><span class="lineNum">     380 </span>            : </a>
+<a name="381"><span class="lineNum">     381 </span>            : #ifndef CAPSTONE_DIET</a>
+<a name="382"><span class="lineNum">     382 </span><span class="lineNoCov">          0 : static void fillDetails(MCInst *MI, unsigned char opcode)</span></a>
+<a name="383"><span class="lineNum">     383 </span>            : {</a>
+<a name="384"><span class="lineNum">     384 </span><span class="lineNoCov">          0 :         cs_detail *detail = MI-&gt;flat_insn-&gt;detail;</span></a>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 :         mos65xx_insn ins = OpInfoTable[opcode].ins;</span></a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineNoCov">          0 :         mos65xx_address_mode am = OpInfoTable[opcode].am;</span></a>
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<a name="388"><span class="lineNum">     388 </span><span class="lineNoCov">          0 :         detail-&gt;mos65xx.am = am;</span></a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineNoCov">          0 :         detail-&gt;mos65xx.modifies_flags = InstructionInfoTable[ins].modifies_status;</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 :         detail-&gt;groups_count = 0;</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :         detail-&gt;regs_read_count = 0;</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :         detail-&gt;regs_write_count = 0;</span></a>
+<a name="393"><span class="lineNum">     393 </span><span class="lineNoCov">          0 :         detail-&gt;mos65xx.op_count = 0;</span></a>
+<a name="394"><span class="lineNum">     394 </span>            : </a>
+<a name="395"><span class="lineNum">     395 </span><span class="lineNoCov">          0 :         if (InstructionInfoTable[ins].group_type != MOS65XX_GRP_INVALID) {</span></a>
+<a name="396"><span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 detail-&gt;groups[0] = InstructionInfoTable[ins].group_type;</span></a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineNoCov">          0 :                 detail-&gt;groups_count++;</span></a>
+<a name="398"><span class="lineNum">     398 </span>            :         }</a>
+<a name="399"><span class="lineNum">     399 </span>            : </a>
+<a name="400"><span class="lineNum">     400 </span><span class="lineNoCov">          0 :         if (InstructionInfoTable[ins].read != MOS65XX_REG_INVALID) {</span></a>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :                 detail-&gt;regs_read[detail-&gt;regs_read_count++] = InstructionInfoTable[ins].read;</span></a>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 :         } else if (OpInfoTable[opcode].am == MOS65XX_AM_ACC) {</span></a>
+<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 :                 detail-&gt;regs_read[detail-&gt;regs_read_count++] = MOS65XX_REG_ACC;</span></a>
+<a name="404"><span class="lineNum">     404 </span><span class="lineNoCov">          0 :         } else if (OpInfoTable[opcode].am == MOS65XX_AM_INDY || OpInfoTable[opcode].am == MOS65XX_AM_ABSY || OpInfoTable[opcode].am == MOS65XX_AM_ZPY) {</span></a>
+<a name="405"><span class="lineNum">     405 </span><span class="lineNoCov">          0 :                 detail-&gt;regs_read[detail-&gt;regs_read_count++] = MOS65XX_REG_Y;</span></a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineNoCov">          0 :         } else if (OpInfoTable[opcode].am == MOS65XX_AM_INDX || OpInfoTable[opcode].am == MOS65XX_AM_ABSX || OpInfoTable[opcode].am == MOS65XX_AM_ZPX) {</span></a>
+<a name="407"><span class="lineNum">     407 </span><span class="lineNoCov">          0 :                 detail-&gt;regs_read[detail-&gt;regs_read_count++] = MOS65XX_REG_X;</span></a>
+<a name="408"><span class="lineNum">     408 </span>            :         }</a>
+<a name="409"><span class="lineNum">     409 </span>            : </a>
+<a name="410"><span class="lineNum">     410 </span><span class="lineNoCov">          0 :         if (InstructionInfoTable[ins].write != MOS65XX_REG_INVALID) {</span></a>
+<a name="411"><span class="lineNum">     411 </span><span class="lineNoCov">          0 :                 detail-&gt;regs_write[detail-&gt;regs_write_count++] = InstructionInfoTable[ins].write;</span></a>
+<a name="412"><span class="lineNum">     412 </span><span class="lineNoCov">          0 :         } else if (OpInfoTable[opcode].am == MOS65XX_AM_ACC) {</span></a>
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :                 detail-&gt;regs_write[detail-&gt;regs_write_count++] = MOS65XX_REG_ACC;</span></a>
+<a name="414"><span class="lineNum">     414 </span>            :         }</a>
+<a name="415"><span class="lineNum">     415 </span>            : </a>
+<a name="416"><span class="lineNum">     416 </span><span class="lineNoCov">          0 :         if (InstructionInfoTable[ins].modifies_status) {</span></a>
+<a name="417"><span class="lineNum">     417 </span><span class="lineNoCov">          0 :                 detail-&gt;regs_write[detail-&gt;regs_write_count++] = MOS65XX_REG_P;</span></a>
+<a name="418"><span class="lineNum">     418 </span>            :         }</a>
+<a name="419"><span class="lineNum">     419 </span>            : </a>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 :         switch(am) {</span></a>
+<a name="421"><span class="lineNum">     421 </span>            :                 case MOS65XX_AM_IMP:</a>
+<a name="422"><span class="lineNum">     422 </span>            :                 case MOS65XX_AM_REL:</a>
+<a name="423"><span class="lineNum">     423 </span>            :                         break;</a>
+<a name="424"><span class="lineNum">     424 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_IMM:</span></a>
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.operands[detail-&gt;mos65xx.op_count].type = MOS65XX_OP_IMM;</span></a>
+<a name="426"><span class="lineNum">     426 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.operands[detail-&gt;mos65xx.op_count].mem = MI-&gt;Operands[0].ImmVal;</span></a>
+<a name="427"><span class="lineNum">     427 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.op_count++;</span></a>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ACC:</span></a>
+<a name="430"><span class="lineNum">     430 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.operands[detail-&gt;mos65xx.op_count].type = MOS65XX_OP_REG;</span></a>
+<a name="431"><span class="lineNum">     431 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.operands[detail-&gt;mos65xx.op_count].reg = MOS65XX_REG_ACC;</span></a>
+<a name="432"><span class="lineNum">     432 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.op_count++;</span></a>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="434"><span class="lineNum">     434 </span><span class="lineNoCov">          0 :                 default:</span></a>
+<a name="435"><span class="lineNum">     435 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.operands[detail-&gt;mos65xx.op_count].type = MOS65XX_OP_MEM;</span></a>
+<a name="436"><span class="lineNum">     436 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.operands[detail-&gt;mos65xx.op_count].mem = MI-&gt;Operands[0].ImmVal;</span></a>
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :                         detail-&gt;mos65xx.op_count++;</span></a>
+<a name="438"><span class="lineNum">     438 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="439"><span class="lineNum">     439 </span>            :         }</a>
+<a name="440"><span class="lineNum">     440 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="441"><span class="lineNum">     441 </span>            : #endif</a>
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<a name="443"><span class="lineNum">     443 </span><span class="lineNoCov">          0 : void MOS65XX_printInst(MCInst *MI, struct SStream *O, void *PrinterInfo)</span></a>
+<a name="444"><span class="lineNum">     444 </span>            : {</a>
+<a name="445"><span class="lineNum">     445 </span>            : #ifndef CAPSTONE_DIET</a>
+<a name="446"><span class="lineNum">     446 </span><span class="lineNoCov">          0 :         unsigned char opcode = MI-&gt;Opcode;</span></a>
+<a name="447"><span class="lineNum">     447 </span>            : </a>
+<a name="448"><span class="lineNum">     448 </span><span class="lineNoCov">          0 :         SStream_concat0(O, InstructionInfoTable[OpInfoTable[MI-&gt;Opcode].ins].name);</span></a>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :         unsigned int value = MI-&gt;Operands[0].ImmVal;</span></a>
+<a name="450"><span class="lineNum">     450 </span>            : </a>
+<a name="451"><span class="lineNum">     451 </span><span class="lineNoCov">          0 :         switch (OpInfoTable[opcode].am) {</span></a>
+<a name="452"><span class="lineNum">     452 </span>            :                 default:</a>
+<a name="453"><span class="lineNum">     453 </span>            :                         break;</a>
+<a name="454"><span class="lineNum">     454 </span>            : </a>
+<a name="455"><span class="lineNum">     455 </span>            :                 case MOS65XX_AM_IMP:</a>
+<a name="456"><span class="lineNum">     456 </span>            :                         break;</a>
+<a name="457"><span class="lineNum">     457 </span>            : </a>
+<a name="458"><span class="lineNum">     458 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ACC:</span></a>
+<a name="459"><span class="lineNum">     459 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; a&quot;);</span></a>
+<a name="460"><span class="lineNum">     460 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="461"><span class="lineNum">     461 </span>            : </a>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ABS:</span></a>
+<a name="463"><span class="lineNum">     463 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; $0x%04x&quot;, value);</span></a>
+<a name="464"><span class="lineNum">     464 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="465"><span class="lineNum">     465 </span>            : </a>
+<a name="466"><span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_IMM:</span></a>
+<a name="467"><span class="lineNum">     467 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; #$0x%02x&quot;, value);</span></a>
+<a name="468"><span class="lineNum">     468 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="469"><span class="lineNum">     469 </span>            : </a>
+<a name="470"><span class="lineNum">     470 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ZP:</span></a>
+<a name="471"><span class="lineNum">     471 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; $0x%02x&quot;, value);</span></a>
+<a name="472"><span class="lineNum">     472 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="473"><span class="lineNum">     473 </span>            : </a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ABSX:</span></a>
+<a name="475"><span class="lineNum">     475 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; $0x%04x, x&quot;, value);</span></a>
+<a name="476"><span class="lineNum">     476 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="477"><span class="lineNum">     477 </span>            : </a>
+<a name="478"><span class="lineNum">     478 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ABSY:</span></a>
+<a name="479"><span class="lineNum">     479 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; $0x%04x, y&quot;, value);</span></a>
+<a name="480"><span class="lineNum">     480 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<a name="482"><span class="lineNum">     482 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ZPX:</span></a>
+<a name="483"><span class="lineNum">     483 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; $0x%02x, x&quot;, value);</span></a>
+<a name="484"><span class="lineNum">     484 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="485"><span class="lineNum">     485 </span>            : </a>
+<a name="486"><span class="lineNum">     486 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_ZPY:</span></a>
+<a name="487"><span class="lineNum">     487 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; $0x%02x, y&quot;, value);</span></a>
+<a name="488"><span class="lineNum">     488 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="489"><span class="lineNum">     489 </span>            : </a>
+<a name="490"><span class="lineNum">     490 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_REL:</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; $0x%04x&quot;, MI-&gt;address + (signed char) value + 2);</span></a>
+<a name="492"><span class="lineNum">     492 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<a name="494"><span class="lineNum">     494 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_IND:</span></a>
+<a name="495"><span class="lineNum">     495 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; ($0x%04x)&quot;, value);</span></a>
+<a name="496"><span class="lineNum">     496 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="497"><span class="lineNum">     497 </span>            : </a>
+<a name="498"><span class="lineNum">     498 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_INDX:</span></a>
+<a name="499"><span class="lineNum">     499 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; ($0x%02x, x)&quot;, value);</span></a>
+<a name="500"><span class="lineNum">     500 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="501"><span class="lineNum">     501 </span>            : </a>
+<a name="502"><span class="lineNum">     502 </span><span class="lineNoCov">          0 :                 case MOS65XX_AM_INDY:</span></a>
+<a name="503"><span class="lineNum">     503 </span><span class="lineNoCov">          0 :                         SStream_concat(O, &quot; ($0x%02x), y&quot;, value);</span></a>
+<a name="504"><span class="lineNum">     504 </span><span class="lineNoCov">          0 :                         break;</span></a>
+<a name="505"><span class="lineNum">     505 </span>            :         }</a>
+<a name="506"><span class="lineNum">     506 </span>            : #endif</a>
+<a name="507"><span class="lineNum">     507 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="508"><span class="lineNum">     508 </span>            : </a>
+<a name="509"><span class="lineNum">     509 </span><span class="lineNoCov">          0 : bool MOS65XX_getInstruction(csh ud, const uint8_t *code, size_t code_len,</span></a>
+<a name="510"><span class="lineNum">     510 </span>            :                                                         MCInst *MI, uint16_t *size, uint64_t address, void *inst_info)</a>
+<a name="511"><span class="lineNum">     511 </span>            : {</a>
+<a name="512"><span class="lineNum">     512 </span><span class="lineNoCov">          0 :         unsigned char opcode;</span></a>
+<a name="513"><span class="lineNum">     513 </span><span class="lineNoCov">          0 :         unsigned char len;</span></a>
+<a name="514"><span class="lineNum">     514 </span><span class="lineNoCov">          0 :         mos65xx_insn ins;</span></a>
+<a name="515"><span class="lineNum">     515 </span>            : </a>
+<a name="516"><span class="lineNum">     516 </span><span class="lineNoCov">          0 :         if (code_len == 0) {</span></a>
+<a name="517"><span class="lineNum">     517 </span><span class="lineNoCov">          0 :                 *size = 1;</span></a>
+<a name="518"><span class="lineNum">     518 </span><span class="lineNoCov">          0 :                 return false;</span></a>
+<a name="519"><span class="lineNum">     519 </span>            :         }</a>
+<a name="520"><span class="lineNum">     520 </span>            : </a>
+<a name="521"><span class="lineNum">     521 </span><span class="lineNoCov">          0 :         opcode = code[0];</span></a>
+<a name="522"><span class="lineNum">     522 </span><span class="lineNoCov">          0 :         ins = OpInfoTable[opcode].ins;</span></a>
+<a name="523"><span class="lineNum">     523 </span><span class="lineNoCov">          0 :         if (ins == MOS65XX_INS_INVALID) {</span></a>
+<a name="524"><span class="lineNum">     524 </span><span class="lineNoCov">          0 :                 *size = 1;</span></a>
+<a name="525"><span class="lineNum">     525 </span><span class="lineNoCov">          0 :                 return false;</span></a>
+<a name="526"><span class="lineNum">     526 </span>            :         }</a>
+<a name="527"><span class="lineNum">     527 </span>            : </a>
+<a name="528"><span class="lineNum">     528 </span><span class="lineNoCov">          0 :         len = getInstructionLength(OpInfoTable[opcode].am);</span></a>
+<a name="529"><span class="lineNum">     529 </span><span class="lineNoCov">          0 :         if (code_len &lt; len) {</span></a>
+<a name="530"><span class="lineNum">     530 </span><span class="lineNoCov">          0 :                 *size = 1;</span></a>
+<a name="531"><span class="lineNum">     531 </span><span class="lineNoCov">          0 :                 return false;</span></a>
+<a name="532"><span class="lineNum">     532 </span>            :         }</a>
+<a name="533"><span class="lineNum">     533 </span>            : </a>
+<a name="534"><span class="lineNum">     534 </span><span class="lineNoCov">          0 :         MI-&gt;address = address;</span></a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineNoCov">          0 :         MI-&gt;Opcode = opcode;</span></a>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 :         MI-&gt;OpcodePub = ins;</span></a>
+<a name="537"><span class="lineNum">     537 </span><span class="lineNoCov">          0 :         MI-&gt;size = 0;</span></a>
+<a name="538"><span class="lineNum">     538 </span>            : </a>
+<a name="539"><span class="lineNum">     539 </span><span class="lineNoCov">          0 :         *size = len;</span></a>
+<a name="540"><span class="lineNum">     540 </span><span class="lineNoCov">          0 :         if (len == 2) {</span></a>
+<a name="541"><span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 MCOperand_CreateImm0(MI, code[1]);</span></a>
+<a name="542"><span class="lineNum">     542 </span>            :         } else</a>
+<a name="543"><span class="lineNum">     543 </span><span class="lineNoCov">          0 :         if (len == 3) {</span></a>
+<a name="544"><span class="lineNum">     544 </span><span class="lineNoCov">          0 :                 MCOperand_CreateImm0(MI, (code[2]&lt;&lt;8) | code[1]);</span></a>
+<a name="545"><span class="lineNum">     545 </span>            :         }</a>
+<a name="546"><span class="lineNum">     546 </span>            : #ifndef CAPSTONE_DIET</a>
+<a name="547"><span class="lineNum">     547 </span><span class="lineNoCov">          0 :         if (MI-&gt;flat_insn-&gt;detail) {</span></a>
+<a name="548"><span class="lineNum">     548 </span><span class="lineNoCov">          0 :                 fillDetails(MI, opcode);</span></a>
+<a name="549"><span class="lineNum">     549 </span>            :         }</a>
+<a name="550"><span class="lineNum">     550 </span>            : #endif</a>
+<a name="551"><span class="lineNum">     551 </span>            : </a>
+<a name="552"><span class="lineNum">     552 </span><span class="lineNoCov">          0 :         return true;</span></a>
+<a name="553"><span class="lineNum">     553 </span>            : }</a>
+<a name="554"><span class="lineNum">     554 </span>            : </a>
+<a name="555"><span class="lineNum">     555 </span><span class="lineNoCov">          0 : const char *MOS65XX_insn_name(csh handle, unsigned int id)</span></a>
+<a name="556"><span class="lineNum">     556 </span>            : {</a>
+<a name="557"><span class="lineNum">     557 </span>            : #ifdef CAPSTONE_DIET</a>
+<a name="558"><span class="lineNum">     558 </span>            :         return NULL;</a>
+<a name="559"><span class="lineNum">     559 </span>            : #else</a>
+<a name="560"><span class="lineNum">     560 </span><span class="lineNoCov">          0 :         if (id &gt;= ARR_SIZE(InstructionInfoTable)) {</span></a>
+<a name="561"><span class="lineNum">     561 </span><span class="lineNoCov">          0 :                 return NULL;</span></a>
+<a name="562"><span class="lineNum">     562 </span>            :         }</a>
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 :         return InstructionInfoTable[id].name;</span></a>
+<a name="564"><span class="lineNum">     564 </span>            : #endif</a>
+<a name="565"><span class="lineNum">     565 </span>            : }</a>
+<a name="566"><span class="lineNum">     566 </span>            : </a>
+<a name="567"><span class="lineNum">     567 </span><span class="lineNoCov">          0 : const char* MOS65XX_reg_name(csh handle, unsigned int reg)</span></a>
+<a name="568"><span class="lineNum">     568 </span>            : {</a>
+<a name="569"><span class="lineNum">     569 </span>            : #ifdef CAPSTONE_DIET</a>
+<a name="570"><span class="lineNum">     570 </span>            :         return NULL;</a>
+<a name="571"><span class="lineNum">     571 </span>            : #else</a>
+<a name="572"><span class="lineNum">     572 </span><span class="lineNoCov">          0 :         if (reg &gt;= ARR_SIZE(RegNames)) {</span></a>
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 :                 return NULL;</span></a>
+<a name="574"><span class="lineNum">     574 </span>            :         }</a>
+<a name="575"><span class="lineNum">     575 </span><span class="lineNoCov">          0 :         return RegNames[(int)reg];</span></a>
+<a name="576"><span class="lineNum">     576 </span>            : #endif</a>
+<a name="577"><span class="lineNum">     577 </span>            : }</a>
+<a name="578"><span class="lineNum">     578 </span>            : </a>
+<a name="579"><span class="lineNum">     579 </span><span class="lineNoCov">          0 : void MOS65XX_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)</span></a>
+<a name="580"><span class="lineNum">     580 </span>            : {</a>
+<a name="581"><span class="lineNum">     581 </span><span class="lineNoCov">          0 :         if (id &lt; 256) {</span></a>
+<a name="582"><span class="lineNum">     582 </span><span class="lineNoCov">          0 :                 insn-&gt;id = OpInfoTable[id].ins;</span></a>
+<a name="583"><span class="lineNum">     583 </span>            :         }</a>
+<a name="584"><span class="lineNum">     584 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="585"><span class="lineNum">     585 </span>            : </a>
+<a name="586"><span class="lineNum">     586 </span><span class="lineNoCov">          0 : const char *MOS65XX_group_name(csh handle, unsigned int id)</span></a>
+<a name="587"><span class="lineNum">     587 </span>            : {</a>
+<a name="588"><span class="lineNum">     588 </span>            : #ifdef CAPSTONE_DIET</a>
+<a name="589"><span class="lineNum">     589 </span>            :         return NULL;</a>
+<a name="590"><span class="lineNum">     590 </span>            : #else</a>
+<a name="591"><span class="lineNum">     591 </span><span class="lineNoCov">          0 :         if (id &gt;= ARR_SIZE(GroupNames)) {</span></a>
+<a name="592"><span class="lineNum">     592 </span><span class="lineNoCov">          0 :                 return NULL;</span></a>
+<a name="593"><span class="lineNum">     593 </span>            :         }</a>
+<a name="594"><span class="lineNum">     594 </span><span class="lineNoCov">          0 :         return GroupNames[(int)id];</span></a>
+<a name="595"><span class="lineNum">     595 </span>            : #endif</a>
+<a name="596"><span class="lineNum">     596 </span>            : }</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

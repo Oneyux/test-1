@@ -1,0 +1,484 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - /src/bloaty/third_party/abseil-cpp/absl/strings/str_cat.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">src/bloaty/third_party/abseil-cpp/absl/strings</a> - str_cat.h<span style="font-size: 80%;"> (source / <a href="str_cat.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryMed">76.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2025-07-14 15:12:49</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<a name="2"><span class="lineNum">       2 </span>            : // Copyright 2017 The Abseil Authors.</a>
+<a name="3"><span class="lineNum">       3 </span>            : //</a>
+<a name="4"><span class="lineNum">       4 </span>            : // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</a>
+<a name="5"><span class="lineNum">       5 </span>            : // you may not use this file except in compliance with the License.</a>
+<a name="6"><span class="lineNum">       6 </span>            : // You may obtain a copy of the License at</a>
+<a name="7"><span class="lineNum">       7 </span>            : //</a>
+<a name="8"><span class="lineNum">       8 </span>            : //      https://www.apache.org/licenses/LICENSE-2.0</a>
+<a name="9"><span class="lineNum">       9 </span>            : //</a>
+<a name="10"><span class="lineNum">      10 </span>            : // Unless required by applicable law or agreed to in writing, software</a>
+<a name="11"><span class="lineNum">      11 </span>            : // distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</a>
+<a name="12"><span class="lineNum">      12 </span>            : // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</a>
+<a name="13"><span class="lineNum">      13 </span>            : // See the License for the specific language governing permissions and</a>
+<a name="14"><span class="lineNum">      14 </span>            : // limitations under the License.</a>
+<a name="15"><span class="lineNum">      15 </span>            : //</a>
+<a name="16"><span class="lineNum">      16 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="17"><span class="lineNum">      17 </span>            : // File: str_cat.h</a>
+<a name="18"><span class="lineNum">      18 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="19"><span class="lineNum">      19 </span>            : //</a>
+<a name="20"><span class="lineNum">      20 </span>            : // This package contains functions for efficiently concatenating and appending</a>
+<a name="21"><span class="lineNum">      21 </span>            : // strings: `StrCat()` and `StrAppend()`. Most of the work within these routines</a>
+<a name="22"><span class="lineNum">      22 </span>            : // is actually handled through use of a special AlphaNum type, which was</a>
+<a name="23"><span class="lineNum">      23 </span>            : // designed to be used as a parameter type that efficiently manages conversion</a>
+<a name="24"><span class="lineNum">      24 </span>            : // to strings and avoids copies in the above operations.</a>
+<a name="25"><span class="lineNum">      25 </span>            : //</a>
+<a name="26"><span class="lineNum">      26 </span>            : // Any routine accepting either a string or a number may accept `AlphaNum`.</a>
+<a name="27"><span class="lineNum">      27 </span>            : // The basic idea is that by accepting a `const AlphaNum &amp;` as an argument</a>
+<a name="28"><span class="lineNum">      28 </span>            : // to your function, your callers will automagically convert bools, integers,</a>
+<a name="29"><span class="lineNum">      29 </span>            : // and floating point values to strings for you.</a>
+<a name="30"><span class="lineNum">      30 </span>            : //</a>
+<a name="31"><span class="lineNum">      31 </span>            : // NOTE: Use of `AlphaNum` outside of the //absl/strings package is unsupported</a>
+<a name="32"><span class="lineNum">      32 </span>            : // except for the specific case of function parameters of type `AlphaNum` or</a>
+<a name="33"><span class="lineNum">      33 </span>            : // `const AlphaNum &amp;`. In particular, instantiating `AlphaNum` directly as a</a>
+<a name="34"><span class="lineNum">      34 </span>            : // stack variable is not supported.</a>
+<a name="35"><span class="lineNum">      35 </span>            : //</a>
+<a name="36"><span class="lineNum">      36 </span>            : // Conversion from 8-bit values is not accepted because, if it were, then an</a>
+<a name="37"><span class="lineNum">      37 </span>            : // attempt to pass ':' instead of &quot;:&quot; might result in a 58 ending up in your</a>
+<a name="38"><span class="lineNum">      38 </span>            : // result.</a>
+<a name="39"><span class="lineNum">      39 </span>            : //</a>
+<a name="40"><span class="lineNum">      40 </span>            : // Bools convert to &quot;0&quot; or &quot;1&quot;. Pointers to types other than `char *` are not</a>
+<a name="41"><span class="lineNum">      41 </span>            : // valid inputs. No output is generated for null `char *` pointers.</a>
+<a name="42"><span class="lineNum">      42 </span>            : //</a>
+<a name="43"><span class="lineNum">      43 </span>            : // Floating point numbers are formatted with six-digit precision, which is</a>
+<a name="44"><span class="lineNum">      44 </span>            : // the default for &quot;std::cout &lt;&lt;&quot; or printf &quot;%g&quot; (the same as &quot;%.6g&quot;).</a>
+<a name="45"><span class="lineNum">      45 </span>            : //</a>
+<a name="46"><span class="lineNum">      46 </span>            : // You can convert to hexadecimal output rather than decimal output using the</a>
+<a name="47"><span class="lineNum">      47 </span>            : // `Hex` type contained here. To do so, pass `Hex(my_int)` as a parameter to</a>
+<a name="48"><span class="lineNum">      48 </span>            : // `StrCat()` or `StrAppend()`. You may specify a minimum hex field width using</a>
+<a name="49"><span class="lineNum">      49 </span>            : // a `PadSpec` enum.</a>
+<a name="50"><span class="lineNum">      50 </span>            : //</a>
+<a name="51"><span class="lineNum">      51 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<a name="53"><span class="lineNum">      53 </span>            : #ifndef ABSL_STRINGS_STR_CAT_H_</a>
+<a name="54"><span class="lineNum">      54 </span>            : #define ABSL_STRINGS_STR_CAT_H_</a>
+<a name="55"><span class="lineNum">      55 </span>            : </a>
+<a name="56"><span class="lineNum">      56 </span>            : #include &lt;array&gt;</a>
+<a name="57"><span class="lineNum">      57 </span>            : #include &lt;cstdint&gt;</a>
+<a name="58"><span class="lineNum">      58 </span>            : #include &lt;string&gt;</a>
+<a name="59"><span class="lineNum">      59 </span>            : #include &lt;type_traits&gt;</a>
+<a name="60"><span class="lineNum">      60 </span>            : #include &lt;vector&gt;</a>
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<a name="62"><span class="lineNum">      62 </span>            : #include &quot;absl/base/port.h&quot;</a>
+<a name="63"><span class="lineNum">      63 </span>            : #include &quot;absl/strings/numbers.h&quot;</a>
+<a name="64"><span class="lineNum">      64 </span>            : #include &quot;absl/strings/string_view.h&quot;</a>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<a name="66"><span class="lineNum">      66 </span>            : namespace absl {</a>
+<a name="67"><span class="lineNum">      67 </span>            : ABSL_NAMESPACE_BEGIN</a>
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<a name="69"><span class="lineNum">      69 </span>            : namespace strings_internal {</a>
+<a name="70"><span class="lineNum">      70 </span>            : // AlphaNumBuffer allows a way to pass a string to StrCat without having to do</a>
+<a name="71"><span class="lineNum">      71 </span>            : // memory allocation.  It is simply a pair of a fixed-size character array, and</a>
+<a name="72"><span class="lineNum">      72 </span>            : // a size.  Please don't use outside of absl, yet.</a>
+<a name="73"><span class="lineNum">      73 </span>            : template &lt;size_t max_size&gt;</a>
+<a name="74"><span class="lineNum">      74 </span>            : struct AlphaNumBuffer {</a>
+<a name="75"><span class="lineNum">      75 </span>            :   std::array&lt;char, max_size&gt; data;</a>
+<a name="76"><span class="lineNum">      76 </span>            :   size_t size;</a>
+<a name="77"><span class="lineNum">      77 </span>            : };</a>
+<a name="78"><span class="lineNum">      78 </span>            : </a>
+<a name="79"><span class="lineNum">      79 </span>            : }  // namespace strings_internal</a>
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<a name="81"><span class="lineNum">      81 </span>            : // Enum that specifies the number of significant digits to return in a `Hex` or</a>
+<a name="82"><span class="lineNum">      82 </span>            : // `Dec` conversion and fill character to use. A `kZeroPad2` value, for example,</a>
+<a name="83"><span class="lineNum">      83 </span>            : // would produce hexadecimal strings such as &quot;0a&quot;,&quot;0f&quot; and a 'kSpacePad5' value</a>
+<a name="84"><span class="lineNum">      84 </span>            : // would produce hexadecimal strings such as &quot;    a&quot;,&quot;    f&quot;.</a>
+<a name="85"><span class="lineNum">      85 </span>            : enum PadSpec : uint8_t {</a>
+<a name="86"><span class="lineNum">      86 </span>            :   kNoPad = 1,</a>
+<a name="87"><span class="lineNum">      87 </span>            :   kZeroPad2,</a>
+<a name="88"><span class="lineNum">      88 </span>            :   kZeroPad3,</a>
+<a name="89"><span class="lineNum">      89 </span>            :   kZeroPad4,</a>
+<a name="90"><span class="lineNum">      90 </span>            :   kZeroPad5,</a>
+<a name="91"><span class="lineNum">      91 </span>            :   kZeroPad6,</a>
+<a name="92"><span class="lineNum">      92 </span>            :   kZeroPad7,</a>
+<a name="93"><span class="lineNum">      93 </span>            :   kZeroPad8,</a>
+<a name="94"><span class="lineNum">      94 </span>            :   kZeroPad9,</a>
+<a name="95"><span class="lineNum">      95 </span>            :   kZeroPad10,</a>
+<a name="96"><span class="lineNum">      96 </span>            :   kZeroPad11,</a>
+<a name="97"><span class="lineNum">      97 </span>            :   kZeroPad12,</a>
+<a name="98"><span class="lineNum">      98 </span>            :   kZeroPad13,</a>
+<a name="99"><span class="lineNum">      99 </span>            :   kZeroPad14,</a>
+<a name="100"><span class="lineNum">     100 </span>            :   kZeroPad15,</a>
+<a name="101"><span class="lineNum">     101 </span>            :   kZeroPad16,</a>
+<a name="102"><span class="lineNum">     102 </span>            :   kZeroPad17,</a>
+<a name="103"><span class="lineNum">     103 </span>            :   kZeroPad18,</a>
+<a name="104"><span class="lineNum">     104 </span>            :   kZeroPad19,</a>
+<a name="105"><span class="lineNum">     105 </span>            :   kZeroPad20,</a>
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<a name="107"><span class="lineNum">     107 </span>            :   kSpacePad2 = kZeroPad2 + 64,</a>
+<a name="108"><span class="lineNum">     108 </span>            :   kSpacePad3,</a>
+<a name="109"><span class="lineNum">     109 </span>            :   kSpacePad4,</a>
+<a name="110"><span class="lineNum">     110 </span>            :   kSpacePad5,</a>
+<a name="111"><span class="lineNum">     111 </span>            :   kSpacePad6,</a>
+<a name="112"><span class="lineNum">     112 </span>            :   kSpacePad7,</a>
+<a name="113"><span class="lineNum">     113 </span>            :   kSpacePad8,</a>
+<a name="114"><span class="lineNum">     114 </span>            :   kSpacePad9,</a>
+<a name="115"><span class="lineNum">     115 </span>            :   kSpacePad10,</a>
+<a name="116"><span class="lineNum">     116 </span>            :   kSpacePad11,</a>
+<a name="117"><span class="lineNum">     117 </span>            :   kSpacePad12,</a>
+<a name="118"><span class="lineNum">     118 </span>            :   kSpacePad13,</a>
+<a name="119"><span class="lineNum">     119 </span>            :   kSpacePad14,</a>
+<a name="120"><span class="lineNum">     120 </span>            :   kSpacePad15,</a>
+<a name="121"><span class="lineNum">     121 </span>            :   kSpacePad16,</a>
+<a name="122"><span class="lineNum">     122 </span>            :   kSpacePad17,</a>
+<a name="123"><span class="lineNum">     123 </span>            :   kSpacePad18,</a>
+<a name="124"><span class="lineNum">     124 </span>            :   kSpacePad19,</a>
+<a name="125"><span class="lineNum">     125 </span>            :   kSpacePad20,</a>
+<a name="126"><span class="lineNum">     126 </span>            : };</a>
+<a name="127"><span class="lineNum">     127 </span>            : </a>
+<a name="128"><span class="lineNum">     128 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="129"><span class="lineNum">     129 </span>            : // Hex</a>
+<a name="130"><span class="lineNum">     130 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="131"><span class="lineNum">     131 </span>            : //</a>
+<a name="132"><span class="lineNum">     132 </span>            : // `Hex` stores a set of hexadecimal string conversion parameters for use</a>
+<a name="133"><span class="lineNum">     133 </span>            : // within `AlphaNum` string conversions.</a>
+<a name="134"><span class="lineNum">     134 </span>            : struct Hex {</a>
+<a name="135"><span class="lineNum">     135 </span>            :   uint64_t value;</a>
+<a name="136"><span class="lineNum">     136 </span>            :   uint8_t width;</a>
+<a name="137"><span class="lineNum">     137 </span>            :   char fill;</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span>            :   template &lt;typename Int&gt;</a>
+<a name="140"><span class="lineNum">     140 </span>            :   explicit Hex(</a>
+<a name="141"><span class="lineNum">     141 </span>            :       Int v, PadSpec spec = absl::kNoPad,</a>
+<a name="142"><span class="lineNum">     142 </span>            :       typename std::enable_if&lt;sizeof(Int) == 1 &amp;&amp;</a>
+<a name="143"><span class="lineNum">     143 </span>            :                               !std::is_pointer&lt;Int&gt;::value&gt;::type* = nullptr)</a>
+<a name="144"><span class="lineNum">     144 </span>            :       : Hex(spec, static_cast&lt;uint8_t&gt;(v)) {}</a>
+<a name="145"><span class="lineNum">     145 </span>            :   template &lt;typename Int&gt;</a>
+<a name="146"><span class="lineNum">     146 </span>            :   explicit Hex(</a>
+<a name="147"><span class="lineNum">     147 </span>            :       Int v, PadSpec spec = absl::kNoPad,</a>
+<a name="148"><span class="lineNum">     148 </span>            :       typename std::enable_if&lt;sizeof(Int) == 2 &amp;&amp;</a>
+<a name="149"><span class="lineNum">     149 </span>            :                               !std::is_pointer&lt;Int&gt;::value&gt;::type* = nullptr)</a>
+<a name="150"><span class="lineNum">     150 </span>            :       : Hex(spec, static_cast&lt;uint16_t&gt;(v)) {}</a>
+<a name="151"><span class="lineNum">     151 </span>            :   template &lt;typename Int&gt;</a>
+<a name="152"><span class="lineNum">     152 </span>            :   explicit Hex(</a>
+<a name="153"><span class="lineNum">     153 </span>            :       Int v, PadSpec spec = absl::kNoPad,</a>
+<a name="154"><span class="lineNum">     154 </span>            :       typename std::enable_if&lt;sizeof(Int) == 4 &amp;&amp;</a>
+<a name="155"><span class="lineNum">     155 </span>            :                               !std::is_pointer&lt;Int&gt;::value&gt;::type* = nullptr)</a>
+<a name="156"><span class="lineNum">     156 </span>            :       : Hex(spec, static_cast&lt;uint32_t&gt;(v)) {}</a>
+<a name="157"><span class="lineNum">     157 </span>            :   template &lt;typename Int&gt;</a>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">      12688 :   explicit Hex(</span></a>
+<a name="159"><span class="lineNum">     159 </span>            :       Int v, PadSpec spec = absl::kNoPad,</a>
+<a name="160"><span class="lineNum">     160 </span>            :       typename std::enable_if&lt;sizeof(Int) == 8 &amp;&amp;</a>
+<a name="161"><span class="lineNum">     161 </span>            :                               !std::is_pointer&lt;Int&gt;::value&gt;::type* = nullptr)</a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">      12688 :       : Hex(spec, static_cast&lt;uint64_t&gt;(v)) {}</span></a>
+<a name="163"><span class="lineNum">     163 </span>            :   template &lt;typename Pointee&gt;</a>
+<a name="164"><span class="lineNum">     164 </span>            :   explicit Hex(Pointee* v, PadSpec spec = absl::kNoPad)</a>
+<a name="165"><span class="lineNum">     165 </span>            :       : Hex(spec, reinterpret_cast&lt;uintptr_t&gt;(v)) {}</a>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<a name="167"><span class="lineNum">     167 </span>            :  private:</a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">      12688 :   Hex(PadSpec spec, uint64_t v)</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">      12688 :       : value(v),</span></a>
+<a name="170"><span class="lineNum">     170 </span>            :         width(spec == absl::kNoPad</a>
+<a name="171"><span class="lineNum">     171 </span>            :                   ? 1</a>
+<a name="172"><span class="lineNum">     172 </span>            :                   : spec &gt;= absl::kSpacePad2 ? spec - absl::kSpacePad2 + 2</a>
+<a name="173"><span class="lineNum">     173 </span>            :                                              : spec - absl::kZeroPad2 + 2),</a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">      25376 :         fill(spec &gt;= absl::kSpacePad2 ? ' ' : '0') {}</span></a>
+<a name="175"><span class="lineNum">     175 </span>            : };</a>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<a name="177"><span class="lineNum">     177 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="178"><span class="lineNum">     178 </span>            : // Dec</a>
+<a name="179"><span class="lineNum">     179 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="180"><span class="lineNum">     180 </span>            : //</a>
+<a name="181"><span class="lineNum">     181 </span>            : // `Dec` stores a set of decimal string conversion parameters for use</a>
+<a name="182"><span class="lineNum">     182 </span>            : // within `AlphaNum` string conversions.  Dec is slower than the default</a>
+<a name="183"><span class="lineNum">     183 </span>            : // integer conversion, so use it only if you need padding.</a>
+<a name="184"><span class="lineNum">     184 </span>            : struct Dec {</a>
+<a name="185"><span class="lineNum">     185 </span>            :   uint64_t value;</a>
+<a name="186"><span class="lineNum">     186 </span>            :   uint8_t width;</a>
+<a name="187"><span class="lineNum">     187 </span>            :   char fill;</a>
+<a name="188"><span class="lineNum">     188 </span>            :   bool neg;</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<a name="190"><span class="lineNum">     190 </span>            :   template &lt;typename Int&gt;</a>
+<a name="191"><span class="lineNum">     191 </span>            :   explicit Dec(Int v, PadSpec spec = absl::kNoPad,</a>
+<a name="192"><span class="lineNum">     192 </span>            :                typename std::enable_if&lt;(sizeof(Int) &lt;= 8)&gt;::type* = nullptr)</a>
+<a name="193"><span class="lineNum">     193 </span>            :       : value(v &gt;= 0 ? static_cast&lt;uint64_t&gt;(v)</a>
+<a name="194"><span class="lineNum">     194 </span>            :                      : uint64_t{0} - static_cast&lt;uint64_t&gt;(v)),</a>
+<a name="195"><span class="lineNum">     195 </span>            :         width(spec == absl::kNoPad</a>
+<a name="196"><span class="lineNum">     196 </span>            :                   ? 1</a>
+<a name="197"><span class="lineNum">     197 </span>            :                   : spec &gt;= absl::kSpacePad2 ? spec - absl::kSpacePad2 + 2</a>
+<a name="198"><span class="lineNum">     198 </span>            :                                              : spec - absl::kZeroPad2 + 2),</a>
+<a name="199"><span class="lineNum">     199 </span>            :         fill(spec &gt;= absl::kSpacePad2 ? ' ' : '0'),</a>
+<a name="200"><span class="lineNum">     200 </span>            :         neg(v &lt; 0) {}</a>
+<a name="201"><span class="lineNum">     201 </span>            : };</a>
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<a name="203"><span class="lineNum">     203 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="204"><span class="lineNum">     204 </span>            : // AlphaNum</a>
+<a name="205"><span class="lineNum">     205 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="206"><span class="lineNum">     206 </span>            : //</a>
+<a name="207"><span class="lineNum">     207 </span>            : // The `AlphaNum` class acts as the main parameter type for `StrCat()` and</a>
+<a name="208"><span class="lineNum">     208 </span>            : // `StrAppend()`, providing efficient conversion of numeric, boolean, and</a>
+<a name="209"><span class="lineNum">     209 </span>            : // hexadecimal values (through the `Hex` type) into strings.</a>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<a name="211"><span class="lineNum">     211 </span>            : class AlphaNum {</a>
+<a name="212"><span class="lineNum">     212 </span>            :  public:</a>
+<a name="213"><span class="lineNum">     213 </span>            :   // No bool ctor -- bools convert to an integral type.</a>
+<a name="214"><span class="lineNum">     214 </span>            :   // A bool ctor would also convert incoming pointers (bletch).</a>
+<a name="215"><span class="lineNum">     215 </span>            : </a>
+<a name="216"><span class="lineNum">     216 </span>            :   AlphaNum(int x)  // NOLINT(runtime/explicit)</a>
+<a name="217"><span class="lineNum">     217 </span>            :       : piece_(digits_,</a>
+<a name="218"><span class="lineNum">     218 </span>            :                numbers_internal::FastIntToBuffer(x, digits_) - &amp;digits_[0]) {}</a>
+<a name="219"><span class="lineNum">     219 </span>            :   AlphaNum(unsigned int x)  // NOLINT(runtime/explicit)</a>
+<a name="220"><span class="lineNum">     220 </span>            :       : piece_(digits_,</a>
+<a name="221"><span class="lineNum">     221 </span>            :                numbers_internal::FastIntToBuffer(x, digits_) - &amp;digits_[0]) {}</a>
+<a name="222"><span class="lineNum">     222 </span>            :   AlphaNum(long x)  // NOLINT(*)</a>
+<a name="223"><span class="lineNum">     223 </span>            :       : piece_(digits_,</a>
+<a name="224"><span class="lineNum">     224 </span>            :                numbers_internal::FastIntToBuffer(x, digits_) - &amp;digits_[0]) {}</a>
+<a name="225"><span class="lineNum">     225 </span><span class="lineCov">    2281760 :   AlphaNum(unsigned long x)  // NOLINT(*)</span></a>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">    4563510 :       : piece_(digits_,</span></a>
+<a name="227"><span class="lineNum">     227 </span><span class="lineCov">    2281760 :                numbers_internal::FastIntToBuffer(x, digits_) - &amp;digits_[0]) {}</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :   AlphaNum(long long x)  // NOLINT(*)</a>
+<a name="229"><span class="lineNum">     229 </span>            :       : piece_(digits_,</a>
+<a name="230"><span class="lineNum">     230 </span>            :                numbers_internal::FastIntToBuffer(x, digits_) - &amp;digits_[0]) {}</a>
+<a name="231"><span class="lineNum">     231 </span>            :   AlphaNum(unsigned long long x)  // NOLINT(*)</a>
+<a name="232"><span class="lineNum">     232 </span>            :       : piece_(digits_,</a>
+<a name="233"><span class="lineNum">     233 </span>            :                numbers_internal::FastIntToBuffer(x, digits_) - &amp;digits_[0]) {}</a>
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<a name="235"><span class="lineNum">     235 </span>            :   AlphaNum(float f)  // NOLINT(runtime/explicit)</a>
+<a name="236"><span class="lineNum">     236 </span>            :       : piece_(digits_, numbers_internal::SixDigitsToBuffer(f, digits_)) {}</a>
+<a name="237"><span class="lineNum">     237 </span>            :   AlphaNum(double f)  // NOLINT(runtime/explicit)</a>
+<a name="238"><span class="lineNum">     238 </span>            :       : piece_(digits_, numbers_internal::SixDigitsToBuffer(f, digits_)) {}</a>
+<a name="239"><span class="lineNum">     239 </span>            : </a>
+<a name="240"><span class="lineNum">     240 </span>            :   AlphaNum(Hex hex);  // NOLINT(runtime/explicit)</a>
+<a name="241"><span class="lineNum">     241 </span>            :   AlphaNum(Dec dec);  // NOLINT(runtime/explicit)</a>
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<a name="243"><span class="lineNum">     243 </span>            :   template &lt;size_t size&gt;</a>
+<a name="244"><span class="lineNum">     244 </span>            :   AlphaNum(  // NOLINT(runtime/explicit)</a>
+<a name="245"><span class="lineNum">     245 </span>            :       const strings_internal::AlphaNumBuffer&lt;size&gt;&amp; buf)</a>
+<a name="246"><span class="lineNum">     246 </span>            :       : piece_(&amp;buf.data[0], buf.size) {}</a>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">    3978998 :   AlphaNum(const char* c_str) : piece_(c_str) {}  // NOLINT(runtime/explicit)</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 :   AlphaNum(absl::string_view pc) : piece_(pc) {}  // NOLINT(runtime/explicit)</span></a>
+<a name="250"><span class="lineNum">     250 </span>            : </a>
+<a name="251"><span class="lineNum">     251 </span>            :   template &lt;typename Allocator&gt;</a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">    1692938 :   AlphaNum(  // NOLINT(runtime/explicit)</span></a>
+<a name="253"><span class="lineNum">     253 </span>            :       const std::basic_string&lt;char, std::char_traits&lt;char&gt;, Allocator&gt;&amp; str)</a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">    1697132 :       : piece_(str) {}</span></a>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<a name="256"><span class="lineNum">     256 </span>            :   // Use string literals &quot;:&quot; instead of character literals ':'.</a>
+<a name="257"><span class="lineNum">     257 </span>            :   AlphaNum(char c) = delete;  // NOLINT(runtime/explicit)</a>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<a name="259"><span class="lineNum">     259 </span>            :   AlphaNum(const AlphaNum&amp;) = delete;</a>
+<a name="260"><span class="lineNum">     260 </span>            :   AlphaNum&amp; operator=(const AlphaNum&amp;) = delete;</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">   15890894 :   absl::string_view::size_type size() const { return piece_.size(); }</span></a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">   11920294 :   const char* data() const { return piece_.data(); }</span></a>
+<a name="264"><span class="lineNum">     264 </span><span class="lineCov">      12582 :   absl::string_view Piece() const { return piece_; }</span></a>
+<a name="265"><span class="lineNum">     265 </span>            : </a>
+<a name="266"><span class="lineNum">     266 </span>            :   // Normal enums are already handled by the integer formatters.</a>
+<a name="267"><span class="lineNum">     267 </span>            :   // This overload matches only scoped enums.</a>
+<a name="268"><span class="lineNum">     268 </span>            :   template &lt;typename T,</a>
+<a name="269"><span class="lineNum">     269 </span>            :             typename = typename std::enable_if&lt;</a>
+<a name="270"><span class="lineNum">     270 </span>            :                 std::is_enum&lt;T&gt;{} &amp;&amp; !std::is_convertible&lt;T, int&gt;{}&gt;::type&gt;</a>
+<a name="271"><span class="lineNum">     271 </span>            :   AlphaNum(T e)  // NOLINT(runtime/explicit)</a>
+<a name="272"><span class="lineNum">     272 </span>            :       : AlphaNum(static_cast&lt;typename std::underlying_type&lt;T&gt;::type&gt;(e)) {}</a>
+<a name="273"><span class="lineNum">     273 </span>            : </a>
+<a name="274"><span class="lineNum">     274 </span>            :   // vector&lt;bool&gt;::reference and const_reference require special help to</a>
+<a name="275"><span class="lineNum">     275 </span>            :   // convert to `AlphaNum` because it requires two user defined conversions.</a>
+<a name="276"><span class="lineNum">     276 </span>            :   template &lt;</a>
+<a name="277"><span class="lineNum">     277 </span>            :       typename T,</a>
+<a name="278"><span class="lineNum">     278 </span>            :       typename std::enable_if&lt;</a>
+<a name="279"><span class="lineNum">     279 </span>            :           std::is_class&lt;T&gt;::value &amp;&amp;</a>
+<a name="280"><span class="lineNum">     280 </span>            :           (std::is_same&lt;T, std::vector&lt;bool&gt;::reference&gt;::value ||</a>
+<a name="281"><span class="lineNum">     281 </span>            :            std::is_same&lt;T, std::vector&lt;bool&gt;::const_reference&gt;::value)&gt;::type* =</a>
+<a name="282"><span class="lineNum">     282 </span>            :           nullptr&gt;</a>
+<a name="283"><span class="lineNum">     283 </span>            :   AlphaNum(T e) : AlphaNum(static_cast&lt;bool&gt;(e)) {}  // NOLINT(runtime/explicit)</a>
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<a name="285"><span class="lineNum">     285 </span>            :  private:</a>
+<a name="286"><span class="lineNum">     286 </span>            :   absl::string_view piece_;</a>
+<a name="287"><span class="lineNum">     287 </span>            :   char digits_[numbers_internal::kFastToBufferSize];</a>
+<a name="288"><span class="lineNum">     288 </span>            : };</a>
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<a name="290"><span class="lineNum">     290 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="291"><span class="lineNum">     291 </span>            : // StrCat()</a>
+<a name="292"><span class="lineNum">     292 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="293"><span class="lineNum">     293 </span>            : //</a>
+<a name="294"><span class="lineNum">     294 </span>            : // Merges given strings or numbers, using no delimiter(s), returning the merged</a>
+<a name="295"><span class="lineNum">     295 </span>            : // result as a string.</a>
+<a name="296"><span class="lineNum">     296 </span>            : //</a>
+<a name="297"><span class="lineNum">     297 </span>            : // `StrCat()` is designed to be the fastest possible way to construct a string</a>
+<a name="298"><span class="lineNum">     298 </span>            : // out of a mix of raw C strings, string_views, strings, bool values,</a>
+<a name="299"><span class="lineNum">     299 </span>            : // and numeric values.</a>
+<a name="300"><span class="lineNum">     300 </span>            : //</a>
+<a name="301"><span class="lineNum">     301 </span>            : // Don't use `StrCat()` for user-visible strings. The localization process</a>
+<a name="302"><span class="lineNum">     302 </span>            : // works poorly on strings built up out of fragments.</a>
+<a name="303"><span class="lineNum">     303 </span>            : //</a>
+<a name="304"><span class="lineNum">     304 </span>            : // For clarity and performance, don't use `StrCat()` when appending to a</a>
+<a name="305"><span class="lineNum">     305 </span>            : // string. Use `StrAppend()` instead. In particular, avoid using any of these</a>
+<a name="306"><span class="lineNum">     306 </span>            : // (anti-)patterns:</a>
+<a name="307"><span class="lineNum">     307 </span>            : //</a>
+<a name="308"><span class="lineNum">     308 </span>            : //   str.append(StrCat(...))</a>
+<a name="309"><span class="lineNum">     309 </span>            : //   str += StrCat(...)</a>
+<a name="310"><span class="lineNum">     310 </span>            : //   str = StrCat(str, ...)</a>
+<a name="311"><span class="lineNum">     311 </span>            : //</a>
+<a name="312"><span class="lineNum">     312 </span>            : // The last case is the worst, with a potential to change a loop</a>
+<a name="313"><span class="lineNum">     313 </span>            : // from a linear time operation with O(1) dynamic allocations into a</a>
+<a name="314"><span class="lineNum">     314 </span>            : // quadratic time operation with O(n) dynamic allocations.</a>
+<a name="315"><span class="lineNum">     315 </span>            : //</a>
+<a name="316"><span class="lineNum">     316 </span>            : // See `StrAppend()` below for more information.</a>
+<a name="317"><span class="lineNum">     317 </span>            : </a>
+<a name="318"><span class="lineNum">     318 </span>            : namespace strings_internal {</a>
+<a name="319"><span class="lineNum">     319 </span>            : </a>
+<a name="320"><span class="lineNum">     320 </span>            : // Do not call directly - this is not part of the public API.</a>
+<a name="321"><span class="lineNum">     321 </span>            : std::string CatPieces(std::initializer_list&lt;absl::string_view&gt; pieces);</a>
+<a name="322"><span class="lineNum">     322 </span>            : void AppendPieces(std::string* dest,</a>
+<a name="323"><span class="lineNum">     323 </span>            :                   std::initializer_list&lt;absl::string_view&gt; pieces);</a>
+<a name="324"><span class="lineNum">     324 </span>            : </a>
+<a name="325"><span class="lineNum">     325 </span>            : }  // namespace strings_internal</a>
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<a name="327"><span class="lineNum">     327 </span>            : ABSL_MUST_USE_RESULT inline std::string StrCat() { return std::string(); }</a>
+<a name="328"><span class="lineNum">     328 </span>            : </a>
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">       4194 : ABSL_MUST_USE_RESULT inline std::string StrCat(const AlphaNum&amp; a) {</span></a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">       4194 :   return std::string(a.data(), a.size());</span></a>
+<a name="331"><span class="lineNum">     331 </span>            : }</a>
+<a name="332"><span class="lineNum">     332 </span>            : </a>
+<a name="333"><span class="lineNum">     333 </span>            : ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum&amp; a, const AlphaNum&amp; b);</a>
+<a name="334"><span class="lineNum">     334 </span>            : ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum&amp; a, const AlphaNum&amp; b,</a>
+<a name="335"><span class="lineNum">     335 </span>            :                                         const AlphaNum&amp; c);</a>
+<a name="336"><span class="lineNum">     336 </span>            : ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum&amp; a, const AlphaNum&amp; b,</a>
+<a name="337"><span class="lineNum">     337 </span>            :                                         const AlphaNum&amp; c, const AlphaNum&amp; d);</a>
+<a name="338"><span class="lineNum">     338 </span>            : </a>
+<a name="339"><span class="lineNum">     339 </span>            : // Support 5 or more arguments</a>
+<a name="340"><span class="lineNum">     340 </span>            : template &lt;typename... AV&gt;</a>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">       4194 : ABSL_MUST_USE_RESULT inline std::string StrCat(</span></a>
+<a name="342"><span class="lineNum">     342 </span>            :     const AlphaNum&amp; a, const AlphaNum&amp; b, const AlphaNum&amp; c, const AlphaNum&amp; d,</a>
+<a name="343"><span class="lineNum">     343 </span>            :     const AlphaNum&amp; e, const AV&amp;... args) {</a>
+<a name="344"><span class="lineNum">     344 </span>            :   return strings_internal::CatPieces(</a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">       4194 :       {a.Piece(), b.Piece(), c.Piece(), d.Piece(), e.Piece(),</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">       4194 :        static_cast&lt;const AlphaNum&amp;&gt;(args).Piece()...});</span></a>
+<a name="347"><span class="lineNum">     347 </span>            : }</a>
+<a name="348"><span class="lineNum">     348 </span>            : </a>
+<a name="349"><span class="lineNum">     349 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="350"><span class="lineNum">     350 </span>            : // StrAppend()</a>
+<a name="351"><span class="lineNum">     351 </span>            : // -----------------------------------------------------------------------------</a>
+<a name="352"><span class="lineNum">     352 </span>            : //</a>
+<a name="353"><span class="lineNum">     353 </span>            : // Appends a string or set of strings to an existing string, in a similar</a>
+<a name="354"><span class="lineNum">     354 </span>            : // fashion to `StrCat()`.</a>
+<a name="355"><span class="lineNum">     355 </span>            : //</a>
+<a name="356"><span class="lineNum">     356 </span>            : // WARNING: `StrAppend(&amp;str, a, b, c, ...)` requires that none of the</a>
+<a name="357"><span class="lineNum">     357 </span>            : // a, b, c, parameters be a reference into str. For speed, `StrAppend()` does</a>
+<a name="358"><span class="lineNum">     358 </span>            : // not try to check each of its input arguments to be sure that they are not</a>
+<a name="359"><span class="lineNum">     359 </span>            : // a subset of the string being appended to. That is, while this will work:</a>
+<a name="360"><span class="lineNum">     360 </span>            : //</a>
+<a name="361"><span class="lineNum">     361 </span>            : //   std::string s = &quot;foo&quot;;</a>
+<a name="362"><span class="lineNum">     362 </span>            : //   s += s;</a>
+<a name="363"><span class="lineNum">     363 </span>            : //</a>
+<a name="364"><span class="lineNum">     364 </span>            : // This output is undefined:</a>
+<a name="365"><span class="lineNum">     365 </span>            : //</a>
+<a name="366"><span class="lineNum">     366 </span>            : //   std::string s = &quot;foo&quot;;</a>
+<a name="367"><span class="lineNum">     367 </span>            : //   StrAppend(&amp;s, s);</a>
+<a name="368"><span class="lineNum">     368 </span>            : //</a>
+<a name="369"><span class="lineNum">     369 </span>            : // This output is undefined as well, since `absl::string_view` does not own its</a>
+<a name="370"><span class="lineNum">     370 </span>            : // data:</a>
+<a name="371"><span class="lineNum">     371 </span>            : //</a>
+<a name="372"><span class="lineNum">     372 </span>            : //   std::string s = &quot;foobar&quot;;</a>
+<a name="373"><span class="lineNum">     373 </span>            : //   absl::string_view p = s;</a>
+<a name="374"><span class="lineNum">     374 </span>            : //   StrAppend(&amp;s, p);</a>
+<a name="375"><span class="lineNum">     375 </span>            : </a>
+<a name="376"><span class="lineNum">     376 </span>            : inline void StrAppend(std::string*) {}</a>
+<a name="377"><span class="lineNum">     377 </span>            : void StrAppend(std::string* dest, const AlphaNum&amp; a);</a>
+<a name="378"><span class="lineNum">     378 </span>            : void StrAppend(std::string* dest, const AlphaNum&amp; a, const AlphaNum&amp; b);</a>
+<a name="379"><span class="lineNum">     379 </span>            : void StrAppend(std::string* dest, const AlphaNum&amp; a, const AlphaNum&amp; b,</a>
+<a name="380"><span class="lineNum">     380 </span>            :                const AlphaNum&amp; c);</a>
+<a name="381"><span class="lineNum">     381 </span>            : void StrAppend(std::string* dest, const AlphaNum&amp; a, const AlphaNum&amp; b,</a>
+<a name="382"><span class="lineNum">     382 </span>            :                const AlphaNum&amp; c, const AlphaNum&amp; d);</a>
+<a name="383"><span class="lineNum">     383 </span>            : </a>
+<a name="384"><span class="lineNum">     384 </span>            : // Support 5 or more arguments</a>
+<a name="385"><span class="lineNum">     385 </span>            : template &lt;typename... AV&gt;</a>
+<a name="386"><span class="lineNum">     386 </span><span class="lineNoCov">          0 : inline void StrAppend(std::string* dest, const AlphaNum&amp; a, const AlphaNum&amp; b,</span></a>
+<a name="387"><span class="lineNum">     387 </span>            :                       const AlphaNum&amp; c, const AlphaNum&amp; d, const AlphaNum&amp; e,</a>
+<a name="388"><span class="lineNum">     388 </span>            :                       const AV&amp;... args) {</a>
+<a name="389"><span class="lineNum">     389 </span><span class="lineNoCov">          0 :   strings_internal::AppendPieces(</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineNoCov">          0 :       dest, {a.Piece(), b.Piece(), c.Piece(), d.Piece(), e.Piece(),</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineNoCov">          0 :              static_cast&lt;const AlphaNum&amp;&gt;(args).Piece()...});</span></a>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="393"><span class="lineNum">     393 </span>            : </a>
+<a name="394"><span class="lineNum">     394 </span>            : // Helper function for the future StrCat default floating-point format, %.6g</a>
+<a name="395"><span class="lineNum">     395 </span>            : // This is fast.</a>
+<a name="396"><span class="lineNum">     396 </span>            : inline strings_internal::AlphaNumBuffer&lt;</a>
+<a name="397"><span class="lineNum">     397 </span>            :     numbers_internal::kSixDigitsToBufferSize&gt;</a>
+<a name="398"><span class="lineNum">     398 </span>            : SixDigits(double d) {</a>
+<a name="399"><span class="lineNum">     399 </span>            :   strings_internal::AlphaNumBuffer&lt;numbers_internal::kSixDigitsToBufferSize&gt;</a>
+<a name="400"><span class="lineNum">     400 </span>            :       result;</a>
+<a name="401"><span class="lineNum">     401 </span>            :   result.size = numbers_internal::SixDigitsToBuffer(d, &amp;result.data[0]);</a>
+<a name="402"><span class="lineNum">     402 </span>            :   return result;</a>
+<a name="403"><span class="lineNum">     403 </span>            : }</a>
+<a name="404"><span class="lineNum">     404 </span>            : </a>
+<a name="405"><span class="lineNum">     405 </span>            : ABSL_NAMESPACE_END</a>
+<a name="406"><span class="lineNum">     406 </span>            : }  // namespace absl</a>
+<a name="407"><span class="lineNum">     407 </span>            : </a>
+<a name="408"><span class="lineNum">     408 </span>            : #endif  // ABSL_STRINGS_STR_CAT_H_</a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
